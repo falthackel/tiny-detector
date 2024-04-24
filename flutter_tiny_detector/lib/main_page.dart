@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_tiny_detector/features_options.dart';
 import 'package:flutter_tiny_detector/saved_assessment.dart';
 import 'package:flutter_tiny_detector/search_widget.dart';
