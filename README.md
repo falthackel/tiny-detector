@@ -5,7 +5,10 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 19 April 2024
 1. Membuat inisiasi appBar (masih terdapat kendala pada widget sidebar, logo, dan search bar)
 
-21 April 2024
+<br>21 April 2024
 1. Menyelesaikan kendala appBar (widget search bar jadi body)
 2. Menambah tampilan fitur melanjutkan penilaian
 3. Menambah tampilan opsi fitur pada beranda
+
+<br>24 April 2024
+1. Membuat profil balita pada tes penilaian
