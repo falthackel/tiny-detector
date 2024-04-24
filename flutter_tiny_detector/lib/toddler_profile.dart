@@ -21,7 +21,7 @@ class _ToddlerProfileState extends State<ToddlerProfile> {
           'Profile Balita',
           style: TextStyle(
             color: Color.fromARGB(255, 255, 161, 50),
-            fontSize: 30,
+            fontSize: 25,
             fontWeight: FontWeight.normal,
           ),
           textAlign: TextAlign.justify,
