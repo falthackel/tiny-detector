@@ -4,7 +4,7 @@ import 'package:flutter_tiny_detector/age_options.dart';
 import 'package:flutter_tiny_detector/toddler_profile_widget.dart';
 
 class ToddlerProfile extends StatefulWidget {
-  const ToddlerProfile({Key? key}) : super(key: key);
+  const ToddlerProfile({super.key});
 
   @override
   State<ToddlerProfile> createState() => _ToddlerProfileState();

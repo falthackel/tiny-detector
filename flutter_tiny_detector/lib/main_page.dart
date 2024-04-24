@@ -6,7 +6,7 @@ import 'package:flutter_tiny_detector/saved_assessment.dart';
 import 'package:flutter_tiny_detector/search_widget.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  const MainPage({super.key});
 
   @override
   State<MainPage> createState() => _MainPageState();

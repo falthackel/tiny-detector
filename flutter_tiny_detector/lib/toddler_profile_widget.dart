@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ToddlerProfileWidget extends StatefulWidget {
-  const ToddlerProfileWidget({Key? key}) : super(key: key);
+  const ToddlerProfileWidget({super.key});
 
   @override
   State<ToddlerProfileWidget> createState() => _ToddlerProfileWidgetState();
