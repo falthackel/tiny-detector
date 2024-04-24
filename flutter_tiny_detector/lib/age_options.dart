@@ -28,13 +28,13 @@ class _AgeOptionsState extends State<AgeOptions> {
             'Pilihlah rentang usia dibawah ini.',
             style: TextStyle(
               color:Color.fromARGB(255, 1, 204, 209),
-              fontSize: 22,
+              fontSize: 20,
             ),
             textAlign: TextAlign.justify,
           ),
         ),
         Wrap( // Wrap for horizontal arrangement
-          spacing: 25,
+          spacing: 15,
           children: ages.map((age) => _buildAgeOption(age)).toList(),
         ),
       ],
