@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tiny_detector/question_answer_page.dart';
 
 class TermsAndCondition extends StatefulWidget {
   const TermsAndCondition({super.key});
@@ -122,7 +123,14 @@ class _TermsAndConditionState extends State<TermsAndCondition> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextButton( // Replace Container with TextButton
-                        onPressed: () { },
+                        onPressed: () { 
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const QuestionAnswerPage()
+                            ),
+                          );
+                        },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
                           const Color.fromARGB(255, 116, 91, 248)
