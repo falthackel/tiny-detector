@@ -12,3 +12,7 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 
 <br>24 April 2024
 1. Membuat profil balita pada tes penilaian
+
+<br>3 Mei 2024
+1. Menyelesaikan permasalahan overflow pada profil balita
+2. Membuat page terms and condition
