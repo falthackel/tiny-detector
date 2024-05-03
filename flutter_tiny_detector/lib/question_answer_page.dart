@@ -8,7 +8,7 @@ class QuestionAnswerPage extends StatefulWidget {
   State<QuestionAnswerPage> createState() => _QuestionAnswerPageState();
 }
 
-class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
+class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware {
   int currentQuestionIndex = 0;
   String? currentAnswer;
   final List<String> questions = [
@@ -30,8 +30,8 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
     "Jika Anda memutar kepala untuk melihat sesuatu, apakah anak Anda melihat sekeliling untuk melihat apa yang Anda lihat?",
     "Apakah anak Anda mencoba utuk membuat Anda melihat kepadanya? (Misalnya, apakah anak Anda melihat Anda untuk dipuji atau berkata “lihat” atau “lihat aku”)",
     "Apakah anak Anda mengerti saat Anda memintanya melakukan sesuatu? (Misalnya, jika Anda tidak menunjuk, apakah anak Anda mengerti kalimat “letakkan buku itu di atas kursi” atau “ambilkan saya selimut”)",
-    "Jika sesuatu yang baru terjadi, apakah anak Anda menatap wajah Anda untuk melihat  perasaan Anda tentang hal tersebut? (Misalnya, jika anak Anda mendengar bunyi aneh  atau lucu, atau melihat mainan baru, akankah dia menatap wajah Anda?)",
-    "Apakah anak Anda menyukai aktivitas yang bergerak? (Misalnya, diayun-ayun atau  dihentak-hentakkan pada lutut Anda)",
+    "Jika sesuatu yang baru terjadi, apakah anak Anda menatap wajah Anda untuk melihat perasaan Anda tentang hal tersebut? (Misalnya, jika anak Anda mendengar bunyi aneh atau lucu, atau melihat mainan baru, akankah dia menatap wajah Anda?)",
+    "Apakah anak Anda menyukai aktivitas yang bergerak? (Misalnya, diayun-ayun atau dihentak-hentakkan pada lutut Anda)",
   ];
   final List<String> answers = [];
 
@@ -39,19 +39,31 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
     setState(() {
       currentAnswer = answer;
       answers.add(answer);
+      _saveAnswer(currentQuestionIndex, answer);
       currentQuestionIndex++;
+
+      if (currentQuestionIndex == questions.length) {
+        // Navigate to results page
+      } else {
+        // Load answer for the next question
+        _loadAnswer(currentQuestionIndex);
+      }
     });
-    if (currentQuestionIndex == questions.length) {
-      // Navigate to results page
-    } else {
-      // Navigate to next question page
-    }
-    _saveAnswer(currentQuestionIndex, answer);
   }
 
   void _saveAnswer(int index, String answer) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('question_$index', answer);
+  }
+
+  void _loadAnswer(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedAnswer = prefs.getString('question_$index');
+    if (storedAnswer != null) {
+      setState(() {
+        currentAnswer = storedAnswer;
+      });
+    }
   }
 
   @override
@@ -72,11 +84,11 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: () => handleAnswer('Yes'),
+                    onPressed: currentAnswer == null ? () => handleAnswer('Yes') : null,
                     child: const Text('Yes'),
                   ),
                   ElevatedButton(
-                    onPressed: () => handleAnswer('No'),
+                    onPressed: currentAnswer == null ? () => handleAnswer('No') : null,
                     child: const Text('No'),
                   ),
                 ],
@@ -87,4 +99,18 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
       ),
     );
   }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   // Registering this class as a route observer
+  //   // So that we can listen to route changes
+  //   RouteObserverProvider.of(context).subscribe(this, ModalRoute.of(context)!);
+  // }
+
+  // @override
+  // void didPopNext() {
+  //   super.didPopNext();
+  //   // This method
+  // }
 }
