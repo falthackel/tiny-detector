@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_tiny_detector/age_options.dart';
+import 'package:flutter_tiny_detector/terms_and_conditions.dart';
 import 'package:flutter_tiny_detector/toddler_profile_widget.dart';
 
 class ToddlerProfile extends StatefulWidget {
@@ -27,36 +28,43 @@ class _ToddlerProfileState extends State<ToddlerProfile> {
           textAlign: TextAlign.justify,
         ),
       ),
-      body: Center(
-        child: Column(
-          // mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const AgeOptions(),
-            const ToddlerProfileWidget(),
-            SizedBox(
-              width: MediaQuery.of(context).size.width*0.5,
-              height: 50,
-              child: TextButton( // Replace Container with TextButton
-                onPressed: () {
-                      // Handle button press action here (e.g., navigate to another screen)
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                  const Color.fromARGB(255, 255, 161, 50)
-                  ), // Set button background color
-                  padding: MaterialStateProperty.all<EdgeInsets>(
-                    const EdgeInsets.fromLTRB(10, 0, 10, 0)
-                  ), // Maintain padding
-                ),
-                child: const Text(
-                  'Submit',
-                  style: TextStyle(
-                    color: Colors.white
-                  ), // Adjust text color for better contrast
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            // mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const AgeOptions(),
+              const ToddlerProfileWidget(),
+              SizedBox(
+                width: MediaQuery.of(context).size.width*0.5,
+                height: 50,
+                child: TextButton( // Replace Container with TextButton
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TermsAndCondition()
+                      ),
+                    );
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                    const Color.fromARGB(255, 255, 161, 50)
+                    ), // Set button background color
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                      const EdgeInsets.fromLTRB(10, 0, 10, 0)
+                    ), // Maintain padding
+                  ),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(
+                      color: Colors.white
+                    ), // Adjust text color for better contrast
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
