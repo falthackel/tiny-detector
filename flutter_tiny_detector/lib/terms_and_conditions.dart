@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
-
 
 class TermsAndCondition extends StatefulWidget {
   const TermsAndCondition({super.key});
@@ -79,6 +76,7 @@ class _TermsAndConditionState extends State<TermsAndCondition> {
                       borderRadius: BorderRadius.circular(10.0), // Adjust corner radius as needed
                     ),
                     child: CheckboxListTile(
+                      controlAffinity: ListTileControlAffinity.leading, // Set checkbox to the left
                       value: isRead,
                       onChanged: (bool? value) {
                         setState(() {
@@ -119,23 +117,26 @@ class _TermsAndConditionState extends State<TermsAndCondition> {
                   //     ],
                   //   ),  
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextButton( // Replace Container with TextButton
-                      onPressed: () { },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                        const Color.fromARGB(255, 116, 91, 248)
-                        ), // Set button background color
-                        padding: MaterialStateProperty.all<EdgeInsets>(
-                          const EdgeInsets.fromLTRB(10, 0, 10, 0)
-                        ), // Maintain padding
-                      ),
-                      child: const Text(
-                        'Lanjutkan',
-                        style: TextStyle(
-                          color: Colors.white
-                          ), // Adjust text color for better contrast
+                  const SizedBox(height: 35), // Add spacing between paragraphs
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton( // Replace Container with TextButton
+                        onPressed: () { },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                          const Color.fromARGB(255, 116, 91, 248)
+                          ), // Set button background color
+                          padding: MaterialStateProperty.all<EdgeInsets>(
+                            const EdgeInsets.fromLTRB(10, 0, 10, 0)
+                          ), // Maintain padding
+                        ),
+                        child: const Text(
+                          'Lanjutkan',
+                          style: TextStyle(
+                            color: Colors.white
+                            ), // Adjust text color for better contrast
+                        ),
                       ),
                     ),
                   ),
