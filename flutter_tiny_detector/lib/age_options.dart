@@ -41,7 +41,7 @@ class _AgeOptionsState extends State<AgeOptions> {
     );
   }
 
-   Widget _buildAgeOption(int age) {
+  Widget _buildAgeOption(int age) {
     final isSelected = age == selectedAge;
     final backgroundColor = isSelected ? const Color.fromARGB(255, 255, 161, 50) : Colors.white;
     const borderColor = Color.fromARGB(255, 255, 161, 50); // Orange border color
