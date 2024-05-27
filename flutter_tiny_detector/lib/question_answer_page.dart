@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'main_page.dart';
 
 class QuestionAnswerPage extends StatefulWidget {
   const QuestionAnswerPage({super.key});
@@ -9,6 +10,7 @@ class QuestionAnswerPage extends StatefulWidget {
 }
 
 class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware {
+  bool isComplete = false;
   int currentQuestionIndex = 0;
   String? currentAnswer;
   int totalScore = 0; // Initialize totalScore variable
@@ -16,7 +18,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
     "Jika Anda menunjuk sesuatu di ruangan, apakah anak Anda melihatnya? (Misalnya, jika Anda menunjuk hewan atau mainan, apakah anak Anda melihat ke arah hewan atau mainan yang Anda tunjuk?)",
     "Pernahkah Anda berpikir bahwa anak Anda tuli?",
     "Apakah anak Anda pernah bermain pura-pura? (Misalnya, berpura-pura minum dari gelas kosong, berpura-pura berbicara menggunakan telepon, atau menyuapi boneka atau boneka binatang?)",
-    "Apakah anak Anda suka memanjat benda-benda? (Misalnya, furniture, alat-alat bermain, atau tangga",
+    "Apakah anak Anda suka memanjat benda-benda? (Misalnya, furniture, alat-alat bermain, atau tangga)",
     "Apakah anak Anda menggerakkan jari-jari tangannya dengan cara yang tidak biasa di dekat matanya? (Misalnya, apakah anak Anda menggoyangkan jari dekat pada matanya?)",
     "Apakah anak Anda pernah menunjuk dengan satu jari untuk meminta sesuatu atau untuk meminta tolong? (Misalnya, menunjuk makanan atau mainan yang jauh dari jangkauannya)",
     "Apakah anak Anda pernah menunjuk dengan satu jari untuk menunjukkan sesuatu yang menarik pada Anda? (Misalnya, menunjuk pada pesawat di langit atau truk besar di jalan)",
@@ -34,12 +36,12 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
     "Jika sesuatu yang baru terjadi, apakah anak Anda menatap wajah Anda untuk melihat perasaan Anda tentang hal tersebut? (Misalnya, jika anak Anda mendengar bunyi aneh atau lucu, atau melihat mainan baru, akankah dia menatap wajah Anda?)",
     "Apakah anak Anda menyukai aktivitas yang bergerak? (Misalnya, diayun-ayun atau dihentak-hentakkan pada lutut Anda)",
   ];
-  final List<String> answers = [];
+  final List<String> answers = List.filled(20, '');
 
   void handleAnswer(String answer) {
     setState(() {
       currentAnswer = answer;
-      answers.add(answer);
+      answers[currentQuestionIndex] = answer;
       _saveAnswer(currentQuestionIndex, answer);
 
       if (currentQuestionIndex == 1 && answer == 'Yes') {
@@ -52,13 +54,12 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
         totalScore++;
       }
 
-      currentQuestionIndex++;
-
-      if (currentQuestionIndex == questions.length) {
-        // Navigate to results page
-      } else {
-        // Load answer for the next question
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        currentAnswer = null; // Reset currentAnswer for the next question
         _loadAnswer(currentQuestionIndex);
+      } else {
+        // Navigate to results page
       }
     });
   }
@@ -66,16 +67,17 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
   void _saveAnswer(int index, String answer) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('question_$index', answer);
+    // await prefs.setInt('page', currentQuestionIndex); // Save current question index
   }
 
   void _loadAnswer(int index) async {
     final prefs = await SharedPreferences.getInstance();
     final storedAnswer = prefs.getString('question_$index');
-    if (storedAnswer != null) {
-      setState(() {
-        currentAnswer = storedAnswer;
-      });
-    }
+    // final storedIndex = prefs.getInt('page') ?? 0; // Handle potential null value
+    setState(() {
+      currentAnswer = storedAnswer;
+      // currentQuestionIndex = storedIndex;
+    });
   }
 
   @override
@@ -85,10 +87,34 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
   }
 
   @override
+  void dispose() {
+    _clearPreferences();
+    super.dispose();
+  }
+
+  void _clearPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Penilaian'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.home), // Icon for navigating back to main page
+            onPressed: () {
+              // Save current state and navigate back to main page
+              _saveAnswer(currentQuestionIndex, answers[currentQuestionIndex]);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => MainPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Container(
         color: const Color.fromARGB(255, 255, 161, 50),
@@ -97,7 +123,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
           child: Column(
             children: [
               Text(
-                'Pertanyaan ${currentQuestionIndex+1}',
+                'Pertanyaan ${currentQuestionIndex + 1}',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -128,16 +154,20 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: currentAnswer == 'Yes' ? Colors.green : Colors.white,
+                    ),
                     onPressed: () {
-                      currentAnswer == null ? handleAnswer('Yes') : null;
-                      currentQuestionIndex < 20 ? currentAnswer = null : currentAnswer = currentAnswer;
+                      handleAnswer('Yes');
                     },
                     child: const Text('Yes'),
                   ),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: currentAnswer == 'No' ? Colors.red : Colors.white,
+                    ),
                     onPressed: () {
-                      currentAnswer == null ? handleAnswer('No') : null;
-                      currentQuestionIndex < 20 ? currentAnswer = null : currentAnswer = currentAnswer;
+                      handleAnswer('No');
                     },
                     child: const Text('No'),
                   ),
@@ -152,7 +182,6 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
                       if (currentQuestionIndex > 0) {
                         setState(() {
                           currentQuestionIndex--;
-                          currentAnswer = answers[currentQuestionIndex];
                           _loadAnswer(currentQuestionIndex);
                         });
                       }
@@ -164,7 +193,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
                       if (currentQuestionIndex < questions.length - 1) {
                         setState(() {
                           currentQuestionIndex++;
-                          currentAnswer = answers[currentQuestionIndex];
+                          currentAnswer = null;
                           _loadAnswer(currentQuestionIndex);
                         });
                       }
