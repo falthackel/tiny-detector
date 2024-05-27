@@ -20,3 +20,6 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 
 <br>27 Mei 2024
 1. Merapikan page pertanyaan dan jawaban (tidak termasuk video)
+
+<br>28 Mei 2024
+1. Menyelesaikan masalah terkait page pertanyaan dan jawaban (belum selesai pada bagian melanjutkan penilaian)
