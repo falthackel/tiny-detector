@@ -78,7 +78,33 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              Text(questions[currentQuestionIndex]),
+              Text(
+                'Pertanyaan ${currentQuestionIndex+1}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 40,
+                ),
+              ),
+              const SizedBox(height: 20.0),
+              const Text(
+                'Simak dan ikuti langkah demi langkah berdasarkan tayangan video dibawah ini.',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 20.0),
+              Container(
+                height: 150,
+              ),
+              Text(
+                questions[currentQuestionIndex],
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
               const SizedBox(height: 20.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
