@@ -17,3 +17,6 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 1. Menyelesaikan permasalahan overflow pada profil balita
 2. Membuat page terms and condition
 3. Membuat page pertanyaan, masih terdapat permasalahan pada navigation
+
+<br>27 Mei 2024
+1. Merapikan page pertanyaan dan jawaban (tidak termasuk video)
