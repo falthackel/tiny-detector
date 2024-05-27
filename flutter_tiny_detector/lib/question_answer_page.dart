@@ -11,6 +11,7 @@ class QuestionAnswerPage extends StatefulWidget {
 class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware {
   int currentQuestionIndex = 0;
   String? currentAnswer;
+  int totalScore = 0; // Initialize totalScore variable
   final List<String> questions = [
     "Jika Anda menunjuk sesuatu di ruangan, apakah anak Anda melihatnya? (Misalnya, jika Anda menunjuk hewan atau mainan, apakah anak Anda melihat ke arah hewan atau mainan yang Anda tunjuk?)",
     "Pernahkah Anda berpikir bahwa anak Anda tuli?",
@@ -40,6 +41,17 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
       currentAnswer = answer;
       answers.add(answer);
       _saveAnswer(currentQuestionIndex, answer);
+
+      if (currentQuestionIndex == 1 && answer == 'Yes') {
+        totalScore++;
+      } else if (currentQuestionIndex == 4 && answer == 'Yes') {
+        totalScore++;
+      } else if (currentQuestionIndex == 11 && answer == 'Yes') {
+        totalScore++;
+      } else if (currentQuestionIndex < 20 && answer == 'No') {
+        totalScore++;
+      }
+
       currentQuestionIndex++;
 
       if (currentQuestionIndex == questions.length) {
@@ -64,6 +76,12 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
         currentAnswer = storedAnswer;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAnswer(currentQuestionIndex); // Load initial answer
   }
 
   @override
@@ -110,33 +128,56 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: currentAnswer == null ? () => handleAnswer('Yes') : null,
+                    onPressed: () {
+                      currentAnswer == null ? handleAnswer('Yes') : null;
+                      currentQuestionIndex < 20 ? currentAnswer = null : currentAnswer = currentAnswer;
+                    },
                     child: const Text('Yes'),
                   ),
                   ElevatedButton(
-                    onPressed: currentAnswer == null ? () => handleAnswer('No') : null,
+                    onPressed: () {
+                      currentAnswer == null ? handleAnswer('No') : null;
+                      currentQuestionIndex < 20 ? currentAnswer = null : currentAnswer = currentAnswer;
+                    },
                     child: const Text('No'),
                   ),
                 ],
               ),
+              const Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (currentQuestionIndex > 0) {
+                        setState(() {
+                          currentQuestionIndex--;
+                          currentAnswer = answers[currentQuestionIndex];
+                          _loadAnswer(currentQuestionIndex);
+                        });
+                      }
+                    },
+                    child: const Text('Previous'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (currentQuestionIndex < questions.length - 1) {
+                        setState(() {
+                          currentQuestionIndex++;
+                          currentAnswer = answers[currentQuestionIndex];
+                          _loadAnswer(currentQuestionIndex);
+                        });
+                      }
+                    },
+                    child: const Text('Next'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20.0),
             ],
           ),
         ),
       ),
     );
   }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   // Registering this class as a route observer
-  //   // So that we can listen to route changes
-  //   RouteObserverProvider.of(context).subscribe(this, ModalRoute.of(context)!);
-  // }
-
-  // @override
-  // void didPopNext() {
-  //   super.didPopNext();
-  //   // This method
-  // }
 }
