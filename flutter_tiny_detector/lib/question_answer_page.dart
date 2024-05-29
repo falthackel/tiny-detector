@@ -10,7 +10,6 @@ class QuestionAnswerPage extends StatefulWidget {
 }
 
 class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware {
-  bool isComplete = false;
   int currentQuestionIndex = 0;
   String? currentAnswer;
   int totalScore = 0; // Initialize totalScore variable
@@ -36,7 +35,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
     "Jika sesuatu yang baru terjadi, apakah anak Anda menatap wajah Anda untuk melihat perasaan Anda tentang hal tersebut? (Misalnya, jika anak Anda mendengar bunyi aneh atau lucu, atau melihat mainan baru, akankah dia menatap wajah Anda?)",
     "Apakah anak Anda menyukai aktivitas yang bergerak? (Misalnya, diayun-ayun atau dihentak-hentakkan pada lutut Anda)",
   ];
-  final List<String> answers = List.filled(20, '');
+  final List<String?> answers = List.filled(20, null);
 
   void handleAnswer(String answer) {
     setState(() {
@@ -56,45 +55,54 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
 
       if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
-        currentAnswer = null; // Reset currentAnswer for the next question
-        _loadAnswer(currentQuestionIndex);
-      } else {
-        // Navigate to results page
+        currentAnswer = answers[currentQuestionIndex];
       }
     });
   }
 
-  void _saveAnswer(int index, String answer) async {
+  void _saveAnswer(int index, String? answer) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('question_$index', answer);
-    // await prefs.setInt('page', currentQuestionIndex); // Save current question index
+    await prefs.setString('question_$index', answer ?? '');
+    await prefs.setInt('currentQuestionIndex', currentQuestionIndex);
   }
 
-  void _loadAnswer(int index) async {
+  void _loadAnswer() async {
     final prefs = await SharedPreferences.getInstance();
-    final storedAnswer = prefs.getString('question_$index');
-    // final storedIndex = prefs.getInt('page') ?? 0; // Handle potential null value
+    final storedIndex = prefs.getInt('currentQuestionIndex') ?? 0;
     setState(() {
-      currentAnswer = storedAnswer;
-      // currentQuestionIndex = storedIndex;
+      currentQuestionIndex = storedIndex;
+      currentAnswer = prefs.getString('question_$currentQuestionIndex');
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _loadAnswer(currentQuestionIndex); // Load initial answer
+    _loadAnswer(); // Load initial answer
   }
 
   @override
   void dispose() {
-    _clearPreferences();
+    _saveAnswer(currentQuestionIndex, currentAnswer); // Save current state on dispose
     super.dispose();
   }
 
-  void _clearPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+  void _navigateToNextQuestion() {
+    setState(() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        currentAnswer = answers[currentQuestionIndex];
+      }
+    });
+  }
+
+  void _navigateToPreviousQuestion() {
+    setState(() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        currentAnswer = answers[currentQuestionIndex];
+      }
+    });
   }
 
   @override
@@ -102,19 +110,17 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
     return Scaffold(
       appBar: AppBar(
         title: const Text('Penilaian'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.home), // Icon for navigating back to main page
-            onPressed: () {
-              // Save current state and navigate back to main page
-              _saveAnswer(currentQuestionIndex, answers[currentQuestionIndex]);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => MainPage()),
-              );
-            },
-          ),
-        ],
+        leading: IconButton(
+          icon: const Icon(Icons.home), // Icon for navigating back to main page
+          onPressed: () {
+            // Save current state and navigate back to main page
+            _saveAnswer(currentQuestionIndex, currentAnswer);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MainPage()),
+            );
+          },
+        ),
       ),
       body: Container(
         color: const Color.fromARGB(255, 255, 161, 50),
@@ -178,26 +184,11 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      if (currentQuestionIndex > 0) {
-                        setState(() {
-                          currentQuestionIndex--;
-                          _loadAnswer(currentQuestionIndex);
-                        });
-                      }
-                    },
+                    onPressed: _navigateToPreviousQuestion,
                     child: const Text('Previous'),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      if (currentQuestionIndex < questions.length - 1) {
-                        setState(() {
-                          currentQuestionIndex++;
-                          currentAnswer = null;
-                          _loadAnswer(currentQuestionIndex);
-                        });
-                      }
-                    },
+                    onPressed: _navigateToNextQuestion,
                     child: const Text('Next'),
                   ),
                 ],
