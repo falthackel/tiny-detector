@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tiny_detector/main_page.dart';
 
 class HighResult extends StatelessWidget {
   const HighResult({super.key});
@@ -78,12 +79,35 @@ class HighResult extends StatelessWidget {
               'Hasil ini tidak dapat menggantikan penilaian perkembangan secara formal. Jika Anda masih memiliki kekhawatiran tentang perkembangan anak Anda, situs web Tiny Detector menyediakan daftar sumber daya tambahan yang dapat diakses melalui tombol SUMBER di bawah ini.',
               style: TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () {
-                // Handle button press (e.g., navigate to resources page)
-              },
-              child: const Text('SUMBER'),
+            const SizedBox(height: 30.0),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space buttons horizontally
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // Handle button press (e.g., navigate to resources page)
+                  },
+                  child: const Text('Sumber'),
+                ),
+                const SizedBox(height: 10.0),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainPage()),
+                    ); // Navigate back to MainPage
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF04A0A4), // Set button color using hex code
+                  ),
+                  child: Text(
+                    'Kembali ke Beranda',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
