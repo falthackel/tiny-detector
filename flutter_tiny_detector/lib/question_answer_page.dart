@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main_page.dart';
+import 'low_result.dart';
+import 'med_result.dart';
+import 'high_result.dart';
 
 class QuestionAnswerPage extends StatefulWidget {
   const QuestionAnswerPage({super.key});
@@ -56,8 +59,29 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
       if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
         currentAnswer = answers[currentQuestionIndex];
+      } else {
+        _navigateToResultPage();
       }
     });
+  }
+
+  void _navigateToResultPage() {
+    if (totalScore >= 0 && totalScore <= 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LowResult()),
+      );
+    } else if (totalScore >= 3 && totalScore <= 7) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MedResult()),
+      );
+    } else if (totalScore >= 8) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HighResult()),
+      );
+    }
   }
 
   void _saveAnswer(int index, String? answer) async {
