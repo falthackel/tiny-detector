@@ -24,7 +24,7 @@ class FeaturesOptions extends StatelessWidget {
                 color: Colors.black,
               ),
               onPressed: () { 
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const ToddlerProfile()
