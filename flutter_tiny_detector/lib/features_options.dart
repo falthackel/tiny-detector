@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tiny_detector/assessment_history.dart';
 import 'package:flutter_tiny_detector/toddler_profile.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -55,7 +56,14 @@ class FeaturesOptions extends StatelessWidget {
                   size: 40,
                   color: Colors.black,
                 ),
-                onPressed: () { },
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AssessmentHistory()
+                    ),
+                  );
+                },
               ),
             ),
             SizedBox(
