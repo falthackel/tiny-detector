@@ -27,3 +27,6 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 <br>29 Mei 2024
 1. Melanjutkan debug page pertanyaan dan jawaban
 2. Membuat 3 page respons: indikasi rendah, sedang, dan tinggi
+
+<br>30 Mei 2024
+1. Membuat page riwayat penilaian dan memperbaiki navigasi tombol pada main page
