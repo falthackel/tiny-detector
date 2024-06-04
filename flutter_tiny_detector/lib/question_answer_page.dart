@@ -46,13 +46,13 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
       answers[currentQuestionIndex] = answer;
       _saveAnswer(currentQuestionIndex, answer);
 
-      if (currentQuestionIndex == 1 && answer == 'Yes') {
+      if (currentQuestionIndex == 1 && answer == 'Ya') {
         totalScore++;
-      } else if (currentQuestionIndex == 4 && answer == 'Yes') {
+      } else if (currentQuestionIndex == 4 && answer == 'Ya') {
         totalScore++;
-      } else if (currentQuestionIndex == 11 && answer == 'Yes') {
+      } else if (currentQuestionIndex == 11 && answer == 'Ya') {
         totalScore++;
-      } else if (currentQuestionIndex < 20 && answer == 'No') {
+      } else if (currentQuestionIndex < 20 && answer == 'Tidak') {
         totalScore++;
       }
 
@@ -99,10 +99,23 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
     });
   }
 
+  void _resetAssessment() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all saved data
+    setState(() {
+      currentQuestionIndex = 0;
+      currentAnswer = null;
+      totalScore = 0;
+      for (int i = 0; i < answers.length; i++) {
+        answers[i] = null;
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _loadAnswer(); // Load initial answer
+    _resetAssessment();
   }
 
   @override
@@ -135,7 +148,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
       appBar: AppBar(
         title: const Text('Penilaian'),
         leading: IconButton(
-          icon: const Icon(Icons.home), // Icon for navigating back to main page
+          icon: const Icon(Icons.arrow_back), // Icon for navigating back to main page
           onPressed: () {
             // Save current state and navigate back to main page
             _saveAnswer(currentQuestionIndex, currentAnswer);
@@ -185,21 +198,21 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: currentAnswer == 'Yes' ? Colors.green : Colors.white,
+                      backgroundColor: currentAnswer == 'Ya' ? Colors.green : Colors.white,
                     ),
                     onPressed: () {
-                      handleAnswer('Yes');
+                      handleAnswer('Ya');
                     },
-                    child: const Text('Yes'),
+                    child: const Text('Ya'),
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: currentAnswer == 'No' ? Colors.red : Colors.white,
+                      backgroundColor: currentAnswer == 'Tidak' ? Colors.red : Colors.white,
                     ),
                     onPressed: () {
-                      handleAnswer('No');
+                      handleAnswer('Tidak');
                     },
-                    child: const Text('No'),
+                    child: const Text('Tidak'),
                   ),
                 ],
               ),
@@ -209,11 +222,11 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
                 children: [
                   ElevatedButton(
                     onPressed: _navigateToPreviousQuestion,
-                    child: const Text('Previous'),
+                    child: const Text('Sebelum'),
                   ),
                   ElevatedButton(
                     onPressed: _navigateToNextQuestion,
-                    child: const Text('Next'),
+                    child: const Text('Sesudah'),
                   ),
                 ],
               ),
