@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tiny_detector/features_options.dart';
 import 'package:flutter_tiny_detector/saved_assessment.dart';
 import 'package:flutter_tiny_detector/search_widget.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -11,65 +13,93 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  String _apiMessage = 'Loading...';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:3000/api/data'));
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _apiMessage = data['message'];
+        });
+      } else {
+        setState(() {
+          _apiMessage = 'Failed to load data';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _apiMessage = 'Error: $e';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // toolbarHeight: 119,
         backgroundColor: const Color.fromARGB(255, 1, 204, 209),
         title: const SizedBox(
           height: 40,
           child: Center(
             child: Image(
-              image: AssetImage(
-                'assets/tiny-detector-white.png'), // Replace with your image path
-                fit: BoxFit.contain, // Adjust image fitting if needed
+              image: AssetImage('assets/tiny-detector-white.png'),
+              fit: BoxFit.contain,
             ),
           ),
         ),
-        // Leading for sidebar menu
         leading: IconButton(
-          icon: const Icon(Icons.menu, size: 35, color: Colors.white,), // Sidebar menu icon
-          onPressed: () {
-            // Handle sidebar menu button press
-          },
+          icon: const Icon(Icons.menu, size: 35, color: Colors.white),
+          onPressed: () {},
         ),
-        // Row for search bar and profile icon
         actions: [
           Container(
-            margin: const EdgeInsets.all(5), // Adjust margin for aesthetics
+            margin: const EdgeInsets.all(5),
             decoration: const BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.person), // Profile icon
-              onPressed: () {
-                  // Handle profile button press (navigate to profile page, etc.)
-              },
+              icon: const Icon(Icons.person),
+              onPressed: () {},
             ),
           ),
         ],
       ),
-      body: const Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SearchWidget(),
-            SavedAssessment(),
-            Text(
-              'Fitur', 
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontWeight: FontWeight.bold, 
-                fontSize: 22,
-                color:Color.fromARGB(255, 1, 204, 209),
-                ),
-              ),
-            Flexible(
-              child: FeaturesOptions(),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SearchWidget(),
+          const SavedAssessment(),
+          const Text(
+            'Fitur',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              color: Color.fromARGB(255, 1, 204, 209),
             ),
-          ],
-        ),
-      );
+          ),
+          const Flexible(
+            child: FeaturesOptions(),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              _apiMessage,
+              style: const TextStyle(fontSize: 18),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
