@@ -30,3 +30,8 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 
 <br>30 Mei 2024
 1. Membuat page riwayat penilaian dan memperbaiki navigasi tombol pada main page
+2. Membuat page riwayat penilaian dan navigasi tombol dari main page ke riwayat penilaian
+
+<br>5 Juni 2024
+1. Integrasi flutter dan node.js
+2. Membuat database untuk menyimpan hasil penilaian
