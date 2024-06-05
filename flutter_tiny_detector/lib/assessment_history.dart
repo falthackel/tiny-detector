@@ -29,9 +29,9 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
       final response = await http.get(Uri.parse(url));
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final Map<String, dynamic> data = json.decode(response.body);
         print('Parsed data: $data');
-        if (data is Map<String, dynamic> && data.containsKey('message')) {
+        if (data.containsKey('message') && data['message'] is List) {
           setState(() {
             assessments = List<Map<String, dynamic>>.from(data['message']);
             errorMessage = '';
