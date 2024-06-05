@@ -23,7 +23,7 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _fetchData() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:3000/api/data'));
+      final response = await http.get(Uri.parse('http://localhost:3000/users'));
       print(response.statusCode);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -102,4 +102,10 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: MainPage(),
+  ));
 }
