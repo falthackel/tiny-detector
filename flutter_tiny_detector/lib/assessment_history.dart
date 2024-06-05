@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'low_result.dart';
+import 'med_result.dart';
+import 'high_result.dart';
 
 class AssessmentHistory extends StatefulWidget {
   const AssessmentHistory({super.key});
@@ -8,32 +14,74 @@ class AssessmentHistory extends StatefulWidget {
 }
 
 class _AssessmentHistoryState extends State<AssessmentHistory> {
-  final List<Map<String, String>> assessments = [
-    {
-      'name': 'Odela',
-      'age': '24 Bulan',
-      'location': 'Bandung',
-      'gender': 'Laki-laki',
-    },
-    {
-      'name': 'Ayu',
-      'age': '36 Bulan',
-      'location': 'Bandung',
-      'gender': 'Perempuan',
-    },
-    {
-      'name': 'Agus',
-      'age': '48 Bulan',
-      'location': 'Bandung',
-      'gender': 'Laki-laki',
-    },
-  ];
+  List<Map<String, dynamic>> assessments = [];
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    final url = 'http://localhost:3000/user-assessments';
+    try {
+      final response = await http.get(Uri.parse(url));
+      print('Response status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Parsed data: $data');
+        if (data is Map<String, dynamic> && data.containsKey('message')) {
+          setState(() {
+            assessments = List<Map<String, dynamic>>.from(data['message']);
+            errorMessage = '';
+          });
+        } else {
+          setState(() {
+            errorMessage = 'Unexpected data format';
+            assessments = [];
+          });
+        }
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load data: ${response.statusCode}';
+          assessments = [];
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error: $e';
+        assessments = [];
+      });
+    }
+  }
+
+  void _navigateToResult(BuildContext context, int result) {
+    Widget screen;
+    switch (result) {
+      case 1:
+        screen = const LowResult();
+        break;
+      case 2:
+        screen = const MedResult();
+        break;
+      case 3:
+        screen = const HighResult();
+        break;
+      default:
+        screen = const LowResult(); // Fallback to LowResult if an unexpected result value is encountered
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => screen),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // toolbarHeight: 119,
         backgroundColor: Colors.white,
         title: const Text(
           'Riwayat Penilaian',
@@ -53,30 +101,34 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
             color: const Color(0xFFF0EDED),
             borderRadius: BorderRadius.circular(30.0), // Set corner radius to 30
           ),
-          child: ListView.builder(
-            itemCount: assessments.length,
-            itemBuilder: (context, index) {
-              final assessment = assessments[index];
-              return ListTile(
-                title: Text("${assessment['name']} (${assessment['age']})"),
-                subtitle: Text(assessment['location']! + ', ' + assessment['gender']!),
-                trailing: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 255, 161, 50), // Set button color using hex code
-                    ),
-                    child: const Text(
-                      'Lihat Penilaian',
-                      style: TextStyle(
-                        color: Colors.white,
+          child: errorMessage.isNotEmpty
+              ? Center(child: Text(errorMessage))
+              : ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: assessments.length,
+                  itemBuilder: (context, index) {
+                    final assessment = assessments[index];
+                    return ListTile(
+                      title: Text("${assessment['name']} (${assessment['age']} bulan)"),
+                      subtitle: Text('${assessment['domicile']}, ${assessment['gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
+                      trailing: ElevatedButton(
+                        onPressed: () => _navigateToResult(context, assessment['results']),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 255, 161, 50), // Set button color using hex code
+                        ),
+                        child: const Text(
+                          'Lihat Penilaian',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-              );
-            },
-          ),
+                    );
+                  },
+                ),
         ),
       ),
     );
   }
-} 
+}
