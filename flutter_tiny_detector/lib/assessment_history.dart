@@ -24,24 +24,15 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
   }
 
   Future<void> _fetchData() async {
-    final url = 'http://localhost:3000/user-assessments';
+    const url = 'http://localhost:3000/user-assessments';
     try {
       final response = await http.get(Uri.parse(url));
-      print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        print('Parsed data: $data');
-        if (data.containsKey('message') && data['message'] is List) {
-          setState(() {
-            assessments = List<Map<String, dynamic>>.from(data['message']);
-            errorMessage = '';
-          });
-        } else {
-          setState(() {
-            errorMessage = 'Unexpected data format';
-            assessments = [];
-          });
-        }
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          assessments = data.map((assessment) => assessment as Map<String, dynamic>).toList();
+          errorMessage = '';
+        });
       } else {
         setState(() {
           errorMessage = 'Failed to load data: ${response.statusCode}';
@@ -113,7 +104,10 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
                       title: Text("${assessment['name']} (${assessment['age']} bulan)"),
                       subtitle: Text('${assessment['domicile']}, ${assessment['gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
                       trailing: ElevatedButton(
-                        onPressed: () => _navigateToResult(context, assessment['results']),
+                        onPressed: () {
+                          print(assessment['assessments'][0]['results']);
+                          return _navigateToResult(context, assessment['assessments'][0]['results']);
+                          },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(255, 255, 161, 50), // Set button color using hex code
                         ),
