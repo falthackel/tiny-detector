@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tiny_detector/features_options.dart';
-import 'package:flutter_tiny_detector/saved_assessment.dart';
-import 'package:flutter_tiny_detector/search_widget.dart';
+import 'features_options.dart';
+import 'saved_assessment.dart';
+import 'search_widget.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final int userId;
+
+  const MainPage({super.key, required this.userId});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -24,11 +26,10 @@ class _MainPageState extends State<MainPage> {
   Future<void> _fetchData() async {
     try {
       final response = await http.get(Uri.parse('http://localhost:3000/users'));
-      print(response.statusCode);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _apiMessage = data['message'];
+          _apiMessage = data['message'] ?? 'Data loaded successfully';
         });
       } else {
         setState(() {
@@ -78,7 +79,7 @@ class _MainPageState extends State<MainPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const SearchWidget(),
-          const SavedAssessment(),
+          SavedAssessment(userId: widget.userId),
           const Text(
             'Fitur',
             textAlign: TextAlign.left,
@@ -88,8 +89,8 @@ class _MainPageState extends State<MainPage> {
               color: Color.fromARGB(255, 1, 204, 209),
             ),
           ),
-          const Flexible(
-            child: FeaturesOptions(),
+          Flexible(
+            child: FeaturesOptions(userId: widget.userId),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -106,6 +107,6 @@ class _MainPageState extends State<MainPage> {
 
 void main() {
   runApp(MaterialApp(
-    home: MainPage(),
+    home: MainPage(userId: 1), // Pass a default userId for now
   ));
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tiny_detector/assessment_history.dart';
-import 'package:flutter_tiny_detector/toddler_profile.dart';
+import 'assessment_history.dart';
+import 'toddler_profile_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class FeaturesOptions extends StatelessWidget {
-  const FeaturesOptions({super.key});
+  final int userId;
+
+  const FeaturesOptions({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -18,17 +20,16 @@ class FeaturesOptions extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
               color: const Color.fromARGB(255, 1, 204, 209),
               child: IconButton(
-              // Use the MdiIcons class for the IconData
-              icon: Icon(
-                MdiIcons.textBoxCheckOutline, 
-                size: 40,
-                color: Colors.black,
-              ),
-              onPressed: () { 
+                icon: Icon(
+                  MdiIcons.textBoxCheckOutline,
+                  size: 40,
+                  color: Colors.black,
+                ),
+                onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ToddlerProfile()
+                      builder: (context) => const ToddlerProfileWidget(),
                     ),
                   );
                 },
@@ -39,10 +40,11 @@ class FeaturesOptions extends StatelessWidget {
               child: const Text(
                 'Tes Penilaian',
                 textAlign: TextAlign.center,
-                maxLines: 2,),
+                maxLines: 2,
+              ),
             ),
           ],
-              ),
+        ),
         Column(
           children: [
             Container(
@@ -50,9 +52,8 @@ class FeaturesOptions extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
               color: const Color.fromARGB(255, 1, 204, 209),
               child: IconButton(
-                // Use the MdiIcons class for the IconData
                 icon: Icon(
-                  MdiIcons.clipboardTextClockOutline, 
+                  MdiIcons.clipboardTextClockOutline,
                   size: 40,
                   color: Colors.black,
                 ),
@@ -60,7 +61,7 @@ class FeaturesOptions extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AssessmentHistory()
+                      builder: (context) => AssessmentHistory(userId: userId),
                     ),
                   );
                 },
@@ -71,7 +72,8 @@ class FeaturesOptions extends StatelessWidget {
               child: const Text(
                 'Riwayat Penilaian',
                 textAlign: TextAlign.center,
-                maxLines: 2,),
+                maxLines: 2,
+              ),
             ),
           ],
         ),
@@ -82,13 +84,12 @@ class FeaturesOptions extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
               color: const Color.fromARGB(255, 1, 204, 209),
               child: IconButton(
-                // Use the MdiIcons class for the IconData
                 icon: Icon(
-                  MdiIcons.hospitalBuilding, 
+                  MdiIcons.hospitalBuilding,
                   size: 40,
                   color: Colors.black,
                 ),
-                onPressed: () {  }
+                onPressed: () {},
               ),
             ),
             SizedBox(
@@ -96,7 +97,8 @@ class FeaturesOptions extends StatelessWidget {
               child: const Text(
                 'Informasi Klinik Terapi',
                 textAlign: TextAlign.center,
-                maxLines: 2,),
+                maxLines: 2,
+              ),
             ),
           ],
         ),
@@ -107,13 +109,12 @@ class FeaturesOptions extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
               color: const Color.fromARGB(255, 1, 204, 209),
               child: IconButton(
-                // Use the MdiIcons class for the IconData
                 icon: Icon(
-                  MdiIcons.frequentlyAskedQuestions, 
+                  MdiIcons.frequentlyAskedQuestions,
                   size: 40,
                   color: Colors.black,
                 ),
-                onPressed: () {  }
+                onPressed: () {},
               ),
             ),
             SizedBox(
@@ -122,10 +123,10 @@ class FeaturesOptions extends StatelessWidget {
                 'FAQ',
                 textAlign: TextAlign.center,
                 maxLines: 2,
-                ),
+              ),
             ),
-            ],
-          ),
+          ],
+        ),
       ],
     );
   }

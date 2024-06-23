@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tiny_detector/main_page.dart';
 
 class LowResult extends StatelessWidget {
-  const LowResult({super.key});
+  final int userId;
+
+  const LowResult({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -94,13 +96,13 @@ class LowResult extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => MainPage()),
+                      MaterialPageRoute(builder: (context) => MainPage(userId: userId)),
                     ); // Navigate back to MainPage
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF04A0A4), // Set button color using hex code
                   ),
-                  child: Text(
+                  child: const Text(
                     'Kembali ke Beranda',
                     style: TextStyle(
                       color: Colors.white,
