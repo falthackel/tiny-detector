@@ -35,3 +35,10 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 <br>5 Juni 2024
 1. Integrasi flutter dan node.js
 2. Membuat database untuk menyimpan hasil penilaian
+
+<br>24 Juni 2024
+1. Menambah API untuk check user
+2. Memperbaiki API untuk join DB
+3. Memperbaiki aksesibilitas API service untuk format data supaya menjadi JSON
+4. Troubleshooting integrasi DB dengan FE dan BE (masih ada permasalahan dalam menyimpan respons jawaban)
+5. Merevisi page penilaian yang tersimpan (masih belum selesai, masih error)
