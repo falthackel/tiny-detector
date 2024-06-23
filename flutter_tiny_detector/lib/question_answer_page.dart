@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'api_service.dart';
 import 'main_page.dart';
 import 'low_result.dart';
 import 'med_result.dart';
 import 'high_result.dart';
 
 class QuestionAnswerPage extends StatefulWidget {
-  const QuestionAnswerPage({super.key});
+  final int userId;
+  final int? responseId;
+
+  const QuestionAnswerPage({Key? key, required this.userId, this.responseId}) : super(key: key);
 
   @override
   State<QuestionAnswerPage> createState() => _QuestionAnswerPageState();
 }
 
-class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware {
+class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
   int currentQuestionIndex = 0;
   String? currentAnswer;
-  int totalScore = 0; // Initialize totalScore variable
-  final List<String> questions = [
+  int totalScore = 0;
+  List<String> questions = [
     "Jika Anda menunjuk sesuatu di ruangan, apakah anak Anda melihatnya? (Misalnya, jika Anda menunjuk hewan atau mainan, apakah anak Anda melihat ke arah hewan atau mainan yang Anda tunjuk?)",
     "Pernahkah Anda berpikir bahwa anak Anda tuli?",
     "Apakah anak Anda pernah bermain pura-pura? (Misalnya, berpura-pura minum dari gelas kosong, berpura-pura berbicara menggunakan telepon, atau menyuapi boneka atau boneka binatang?)",
@@ -38,48 +42,89 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
     "Jika sesuatu yang baru terjadi, apakah anak Anda menatap wajah Anda untuk melihat perasaan Anda tentang hal tersebut? (Misalnya, jika anak Anda mendengar bunyi aneh atau lucu, atau melihat mainan baru, akankah dia menatap wajah Anda?)",
     "Apakah anak Anda menyukai aktivitas yang bergerak? (Misalnya, diayun-ayun atau dihentak-hentakkan pada lutut Anda)",
   ];
-  final List<String?> answers = List.filled(20, null);
+  final Map<int, bool> answers = {};
 
-  void handleAnswer(String answer) {
+  @override
+  void initState() {
+    super.initState();
+    fetchQuestions();
+  }
+
+  Future<void> fetchQuestions() async {
+    try {
+      List<String> fetchedQuestions = await ApiService.fetchQuestions();
+      if (widget.responseId != null) {
+        Map<int, bool> previousAnswers = await ApiService.fetchUserAssessment(widget.responseId!);
+        setState(() {
+          questions = fetchedQuestions;
+          answers.addAll(previousAnswers);
+          totalScore = answers.values.where((value) => value).length;
+          currentAnswer = answers[currentQuestionIndex]?.toString();
+        });
+      } else {
+        setState(() {
+          questions = fetchedQuestions;
+        });
+      }
+    } catch (e) {
+      print('Failed to fetch questions: $e');
+    }
+  }
+
+  void handleAnswer(bool answer) {
     setState(() {
-      currentAnswer = answer;
+      currentAnswer = answer.toString();
       answers[currentQuestionIndex] = answer;
-      _saveAnswer(currentQuestionIndex, answer);
+      _saveAnswer(currentQuestionIndex, answer.toString());
 
-      if (currentQuestionIndex == 1 && answer == 'Ya') {
+      if ([1, 4, 11].contains(currentQuestionIndex) && answer) {
         totalScore++;
-      } else if (currentQuestionIndex == 4 && answer == 'Ya') {
-        totalScore++;
-      } else if (currentQuestionIndex == 11 && answer == 'Ya') {
-        totalScore++;
-      } else if (currentQuestionIndex < 20 && answer == 'Tidak') {
+      } else if (currentQuestionIndex < 20 && !answer) {
         totalScore++;
       }
 
       if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
-        currentAnswer = answers[currentQuestionIndex];
+        currentAnswer = answers[currentQuestionIndex]?.toString();
       } else {
-        _navigateToResultPage();
+        _submitResults();
       }
     });
   }
 
+  void _submitResults() async {
+    try {
+      Map<String, bool> jsonFriendlyAnswers = answers.map((key, value) => MapEntry(key.toString(), value));
+
+      if (widget.responseId != null) {
+        await ApiService.updateAssessment(widget.responseId!, jsonFriendlyAnswers);
+      } else {
+        await ApiService.submitAnswers(widget.userId, jsonFriendlyAnswers);
+      }
+      _navigateToResultPage();
+    } catch (e) {
+      print('Failed to submit results: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to submit results: $e')),
+      );
+    }
+  }
+
   void _navigateToResultPage() {
-    if (totalScore >= 0 && totalScore <= 2) {
+    if (totalScore < 3) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LowResult()),
+        MaterialPageRoute(builder: (context) => LowResult(userId: widget.userId)),
       );
     } else if (totalScore >= 3 && totalScore <= 7) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MedResult()),
+        MaterialPageRoute(builder: (context) => MedResult(userId: widget.userId)),
       );
     } else if (totalScore >= 8) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HighResult()),
+        MaterialPageRoute(builder: (context) => HighResult(userId: widget.userId)),
       );
     }
   }
@@ -90,45 +135,11 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
     await prefs.setInt('currentQuestionIndex', currentQuestionIndex);
   }
 
-  void _loadAnswer() async {
-    final prefs = await SharedPreferences.getInstance();
-    final storedIndex = prefs.getInt('currentQuestionIndex') ?? 0;
-    setState(() {
-      currentQuestionIndex = storedIndex;
-      currentAnswer = prefs.getString('question_$currentQuestionIndex');
-    });
-  }
-
-  void _resetAssessment() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Clear all saved data
-    setState(() {
-      currentQuestionIndex = 0;
-      currentAnswer = null;
-      totalScore = 0;
-      for (int i = 0; i < answers.length; i++) {
-        answers[i] = null;
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _resetAssessment();
-  }
-
-  @override
-  void dispose() {
-    _saveAnswer(currentQuestionIndex, currentAnswer); // Save current state on dispose
-    super.dispose();
-  }
-
   void _navigateToNextQuestion() {
     setState(() {
       if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
-        currentAnswer = answers[currentQuestionIndex];
+        currentAnswer = answers[currentQuestionIndex]?.toString();
       }
     });
   }
@@ -137,7 +148,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
     setState(() {
       if (currentQuestionIndex > 0) {
         currentQuestionIndex--;
-        currentAnswer = answers[currentQuestionIndex];
+        currentAnswer = answers[currentQuestionIndex]?.toString();
       }
     });
   }
@@ -148,93 +159,93 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> with RouteAware
       appBar: AppBar(
         title: const Text('Penilaian'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Icon for navigating back to main page
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Save current state and navigate back to main page
             _saveAnswer(currentQuestionIndex, currentAnswer);
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => MainPage()),
+              MaterialPageRoute(builder: (context) => MainPage(userId: widget.userId)),
             );
           },
         ),
       ),
-      body: Container(
-        color: const Color.fromARGB(255, 255, 161, 50),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Text(
-                'Pertanyaan ${currentQuestionIndex + 1}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 40,
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              const Text(
-                'Simak dan ikuti langkah demi langkah berdasarkan tayangan video dibawah ini.',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              Container(
-                height: 150,
-              ),
-              Text(
-                questions[currentQuestionIndex],
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: currentAnswer == 'Ya' ? Colors.green : Colors.white,
+      body: questions.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : Container(
+              color: const Color.fromARGB(255, 255, 161, 50),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Pertanyaan ${currentQuestionIndex + 1}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 40,
+                      ),
                     ),
-                    onPressed: () {
-                      handleAnswer('Ya');
-                    },
-                    child: const Text('Ya'),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: currentAnswer == 'Tidak' ? Colors.red : Colors.white,
+                    const SizedBox(height: 20.0),
+                    const Text(
+                      'Simak dan ikuti langkah demi langkah berdasarkan tayangan video di bawah ini.',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
                     ),
-                    onPressed: () {
-                      handleAnswer('Tidak');
-                    },
-                    child: const Text('Tidak'),
-                  ),
-                ],
+                    const SizedBox(height: 20.0),
+                    Container(
+                      height: 150,
+                    ),
+                    Text(
+                      questions[currentQuestionIndex],
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 20.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: currentAnswer == 'true' ? Colors.green : Colors.white,
+                          ),
+                          onPressed: () {
+                            handleAnswer(true);
+                          },
+                          child: const Text('Ya'),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: currentAnswer == 'false' ? Colors.red : Colors.white,
+                          ),
+                          onPressed: () {
+                            handleAnswer(false);
+                          },
+                          child: const Text('Tidak'),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _navigateToPreviousQuestion,
+                          child: const Text('Previous'),
+                        ),
+                        ElevatedButton(
+                          onPressed: _navigateToNextQuestion,
+                          child: const Text('Next'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: _navigateToPreviousQuestion,
-                    child: const Text('Sebelum'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _navigateToNextQuestion,
-                    child: const Text('Sesudah'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20.0),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
