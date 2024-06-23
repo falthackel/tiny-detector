@@ -7,14 +7,16 @@ import 'med_result.dart';
 import 'high_result.dart';
 
 class AssessmentHistory extends StatefulWidget {
-  const AssessmentHistory({super.key});
+  final int userId;
+
+  const AssessmentHistory({super.key, required this.userId});
 
   @override
-  State<AssessmentHistory> createState() => _AssessmentHistoryState();
+  _AssessmentHistoryState createState() => _AssessmentHistoryState();
 }
 
 class _AssessmentHistoryState extends State<AssessmentHistory> {
-  List<Map<String, dynamic>> assessments = [];
+  List<Map<String, dynamic>> userAssessments = [];
   String errorMessage = '';
 
   @override
@@ -24,43 +26,56 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
   }
 
   Future<void> _fetchData() async {
-    const url = 'http://localhost:3000/user-assessments';
+    final url = 'http://localhost:3000/user-assessments/${widget.userId}';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final data = json.decode(response.body);
+        print('Response data: $data'); // Log the response data
         setState(() {
-          assessments = data.map((assessment) => assessment as Map<String, dynamic>).toList();
+          userAssessments = List<Map<String, dynamic>>.from([data]);
           errorMessage = '';
+        });
+      } else if (response.statusCode == 404) {
+        setState(() {
+          errorMessage = 'User not found';
+          userAssessments = [];
         });
       } else {
         setState(() {
           errorMessage = 'Failed to load data: ${response.statusCode}';
-          assessments = [];
+          userAssessments = [];
         });
       }
     } catch (e) {
       setState(() {
         errorMessage = 'Error: $e';
-        assessments = [];
+        userAssessments = [];
       });
     }
   }
 
-  void _navigateToResult(BuildContext context, int result) {
+  void _navigateToResult(BuildContext context, int userId, dynamic results) {
+    if (results == null || results is! int) {
+      setState(() {
+        errorMessage = 'Invalid results data';
+      });
+      return;
+    }
+
     Widget screen;
-    switch (result) {
+    switch (results) {
       case 1:
-        screen = const LowResult();
+        screen = LowResult(userId: userId);
         break;
       case 2:
-        screen = const MedResult();
+        screen = MedResult(userId: userId);
         break;
       case 3:
-        screen = const HighResult();
+        screen = HighResult(userId: userId);
         break;
       default:
-        screen = const LowResult(); // Fallback to LowResult if an unexpected result value is encountered
+        screen = LowResult(userId: userId); // Fallback to LowResult if an unexpected results value is encountered
     }
 
     Navigator.push(
@@ -94,33 +109,40 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
           ),
           child: errorMessage.isNotEmpty
               ? Center(child: Text(errorMessage))
-              : ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: assessments.length,
-                  itemBuilder: (context, index) {
-                    final assessment = assessments[index];
-                    return ListTile(
-                      title: Text("${assessment['name']} (${assessment['age']} bulan)"),
-                      subtitle: Text('${assessment['domicile']}, ${assessment['gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
-                      trailing: ElevatedButton(
-                        onPressed: () {
-                          print(assessment['assessments'][0]['results']);
-                          return _navigateToResult(context, assessment['assessments'][0]['results']);
-                          },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 255, 161, 50), // Set button color using hex code
-                        ),
-                        child: const Text(
-                          'Lihat Penilaian',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+              : userAssessments.isEmpty
+                  ? Center(child: Text('Loading...'))
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: userAssessments.length,
+                      itemBuilder: (context, index) {
+                        final user = userAssessments[index];
+                        return Column(
+                          children: [
+                            ...user['assessments'].map<Widget>((assessment) {
+                              return ListTile(
+                                title: Text("${user['name']} (${user['age']} bulan)"),
+                                subtitle: Text('${user['domicile']}, ${user['gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
+                                trailing: ElevatedButton(
+                                  onPressed: () {
+                                    _navigateToResult(context, user['id'], assessment['results']);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(255, 255, 161, 50), // Set button color using hex code
+                                  ),
+                                  child: const Text(
+                                    'Lihat Penilaian',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList()
+                          ],
+                        );
+                      },
+                    ),
         ),
       ),
     );
