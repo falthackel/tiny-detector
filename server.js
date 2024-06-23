@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bodyParser = require('body-parser');
-const { Sequelize, DataTypes } = require('sequelize');
 
 const app = express();
 const port = 3000;
@@ -16,180 +15,121 @@ const pool = new Pool({
   host: 'localhost',
   database: 'balita',
   password: 'password',
-  port: 5432, // PostgreSQL default port is 5432
+  port: 5432,
 });
 
-// Initialize Sequelize
-const sequelize = new Sequelize('balita', 'saya', 'password', {
-  host: 'localhost',
-  dialect: 'postgres'
-});
-
-// Define models
-const Users = sequelize.define('users', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  domicile: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  gender: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  age: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  }
-}, {
-  tableName: 'users', // specify the actual table name here
-  timestamps: false
-});
-
-const Assessment = sequelize.define('assessments', {
-  response_id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Users,
-      key: 'id'
-    }
-  },
-  q1: DataTypes.INTEGER,
-  q2: DataTypes.INTEGER,
-  q3: DataTypes.INTEGER,
-  q4: DataTypes.INTEGER,
-  q5: DataTypes.INTEGER,
-  q6: DataTypes.INTEGER,
-  q7: DataTypes.INTEGER,
-  q8: DataTypes.INTEGER,
-  q9: DataTypes.INTEGER,
-  q10: DataTypes.INTEGER,
-  q11: DataTypes.INTEGER,
-  q12: DataTypes.INTEGER,
-  q13: DataTypes.INTEGER,
-  q14: DataTypes.INTEGER,
-  q15: DataTypes.INTEGER,
-  q16: DataTypes.INTEGER,
-  q17: DataTypes.INTEGER,
-  q18: DataTypes.INTEGER,
-  q19: DataTypes.INTEGER,
-  q20: DataTypes.INTEGER,
-  total_score: DataTypes.INTEGER,
-  results: DataTypes.INTEGER
-}, {
-  tableName: 'assessments', // specify the actual table name here
-  timestamps: false
-});
-
-Users.hasMany(Assessment, { foreignKey: 'id' });
-Assessment.belongsTo(Users, { foreignKey: 'id' });
-
-// Sync database
-sequelize.sync();
-
-// Simple endpoint to return a message
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
+// Endpoint to fetch all users
 app.get('/users', async (req, res) => {
   try {
-    const users = await Users.findAll();
-    res.status(200).json(users);
+    const users = await pool.query('SELECT * FROM users');
+    res.status(200).json(users.rows);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while fetching users' });
   }
 });
 
-// Define routes
+// Endpoint to create a new user
 app.post('/users', async (req, res) => {
   try {
-    const newUser = await Users.create(req.body);
-    res.status(201).json(newUser);
+    const { name, domicile, gender, age } = req.body;
+    const newUser = await pool.query(
+      'INSERT INTO users (name, domicile, gender, age) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, domicile, gender, age]
+    );
+    res.status(201).json(newUser.rows[0]);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-app.get('/assessments', async (req, res) => {
+// Endpoint to check if a user exists
+app.post('/users/check', async (req, res) => {
   try {
-    const assessments = await Assessment.findAll();
-    res.status(200).json(assessments);
+    const { name, domicile, gender, age } = req.body;
+    const user = await pool.query(
+      'SELECT * FROM users WHERE name = $1 AND domicile = $2 AND gender = $3 AND age = $4',
+      [name, domicile, gender, age]
+    );
+
+    if (user.rows.length > 0) {
+      res.status(200).json({ exists: true });
+    } else {
+      res.status(200).json({ exists: false });
+    }
   } catch (error) {
-    console.error(error);
+    console.error('Error checking user existence:', error.message);
+    res.status(500).json({ error: 'An error occurred while checking user existence' });
+  }
+});
+
+// Endpoint to submit assessment answers
+app.post('/assessments', async (req, res) => {
+  try {
+    const { id, ...answers } = req.body;
+    const totalScore = Object.values(answers).filter(value => value).length;
+    const result = totalScore <= 2 ? 1 : totalScore <= 7 ? 2 : 3;
+
+    await pool.query(
+      'INSERT INTO assessments (id, total_score, results) VALUES ($1, $2, $3)',
+      [id, totalScore, result]
+    );
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error submitting assessment:', error.message);
+    res.status(500).json({ error: 'An error occurred while submitting the assessment' });
+  }
+});
+
+// Endpoint to update assessment
+app.put('/assessments/:responseId', async (req, res) => {
+  try {
+    const { responseId } = req.params;
+    const answers = req.body;
+    const totalScore = Object.values(answers).filter(value => value).length;
+    const result = totalScore <= 2 ? 1 : totalScore <= 7 ? 2 : 3;
+
+    await pool.query(
+      'UPDATE assessments SET total_score = $1, results = $2 WHERE response_id = $3',
+      [totalScore, result, responseId]
+    );
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error updating assessment:', error.message);
+    res.status(500).json({ error: 'An error occurred while updating the assessment' });
+  }
+});
+
+app.get('/user-assessments/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const result = await pool.query(
+      `SELECT u.id, u.name, u.domicile, u.gender, u.age, 
+              json_agg(json_build_object(
+                'response_id', a.response_id,
+                'total_score', a.total_score,
+                'results', a.results
+              )) as assessments
+       FROM users u
+       JOIN assessments a ON u.id = a.id
+       WHERE u.id = $1
+       GROUP BY u.id`,
+      [userId]
+    );
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'User not found' });
+    } else {
+      res.status(200).json(result.rows[0]);
+    }
+  } catch (error) {
+    console.error('Error fetching user assessments:', error.message);
     res.status(500).json({ error: 'An error occurred while fetching assessments' });
   }
 });
 
-app.post('/assessments', async (req, res) => {
-  try {
-    const assessment = await Assessment.create(req.body);
-    res.json(assessment);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Define user-assessment endpoint
-app.get('/user-assessments', async (req, res) => {
-  try {
-    const users = await Users.findAll({
-      include: {
-        model: Assessment,
-        attributes: ['response_id', 'total_score', 'results'],
-      },
-    });
-
-    const result = users.map(user => ({
-      id: user.id,
-      name: user.name,
-      domicile: user.domicile,
-      gender: user.gender,
-      age: user.age,
-      assessments: user.assessments.map(assessment => ({
-        response_id: assessment.response_id,
-        total_score: assessment.total_score,
-        results: assessment.results,
-      }))
-    }));
-
-    res.status(200).json(result);
-  } 
-  catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.post('/submit-answers', async (req, res) => {
-  const { answers, totalScore } = req.body;
-
-  try {
-    const result = await pool.query(
-      'INSERT INTO answers (answers, total_score) VALUES ($1, $2) RETURNING *',
-      [answers, totalScore]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
+// Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
