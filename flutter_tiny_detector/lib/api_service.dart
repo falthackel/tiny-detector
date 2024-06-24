@@ -37,7 +37,7 @@ class ApiService {
     final response = await http.get(Uri.parse('$baseUrl/questions'));
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
-      return List<String>.from(data.map((json) => json['text']));
+      return List<String>.from(data.map((question) => question['text']));
     } else {
       throw Exception('Failed to load questions');
     }
