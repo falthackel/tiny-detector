@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
+import 'api_service.dart';
 import 'low_result.dart';
 import 'med_result.dart';
 import 'high_result.dart';
 
 class AssessmentHistory extends StatefulWidget {
-  final int userId;
-
   const AssessmentHistory({super.key, required this.userId});
+
+  final int userId;
 
   @override
   _AssessmentHistoryState createState() => _AssessmentHistoryState();
@@ -26,27 +24,12 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
   }
 
   Future<void> _fetchData() async {
-    final url = 'http://localhost:3000/user-assessments/${widget.userId}';
     try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print('Response data: $data'); // Log the response data
-        setState(() {
-          userAssessments = List<Map<String, dynamic>>.from([data]);
-          errorMessage = '';
-        });
-      } else if (response.statusCode == 404) {
-        setState(() {
-          errorMessage = 'User not found';
-          userAssessments = [];
-        });
-      } else {
-        setState(() {
-          errorMessage = 'Failed to load data: ${response.statusCode}';
-          userAssessments = [];
-        });
-      }
+      final data = await ApiService.fetchUserAssessments();
+      setState(() {
+        userAssessments = data;
+        errorMessage = '';
+      });
     } catch (e) {
       setState(() {
         errorMessage = 'Error: $e';
@@ -99,33 +82,31 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
           textAlign: TextAlign.justify,
         ),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.all(15),
-          padding: const EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF0EDED),
-            borderRadius: BorderRadius.circular(30.0), // Set corner radius to 30
-          ),
-          child: errorMessage.isNotEmpty
-              ? Center(child: Text(errorMessage))
-              : userAssessments.isEmpty
-                  ? Center(child: Text('Loading...'))
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: userAssessments.length,
-                      itemBuilder: (context, index) {
-                        final user = userAssessments[index];
+      body: Container(
+        margin: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0EDED),
+          borderRadius: BorderRadius.circular(30.0), // Set corner radius to 30
+        ),
+        child: errorMessage.isNotEmpty
+            ? Center(child: Text(errorMessage))
+            : userAssessments.isEmpty
+                ? Center(child: Text('Loading...'))
+                : SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: userAssessments.map((user) {
                         return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ...user['assessments'].map<Widget>((assessment) {
+                            ...(user['assessments'] as List).map<Widget>((assessment) {
                               return ListTile(
                                 title: Text("${user['name']} (${user['age']} bulan)"),
                                 subtitle: Text('${user['domicile']}, ${user['gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
                                 trailing: ElevatedButton(
                                   onPressed: () {
-                                    _navigateToResult(context, user['id'], assessment['results']);
+                                    _navigateToResult(context, user['user_id'], assessment['results']);
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color.fromARGB(255, 255, 161, 50), // Set button color using hex code
@@ -141,9 +122,9 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
                             }).toList()
                           ],
                         );
-                      },
+                      }).toList(),
                     ),
-        ),
+                  ),
       ),
     );
   }
