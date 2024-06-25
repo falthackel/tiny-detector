@@ -33,11 +33,11 @@ class ApiService {
     }
   }
 
-  static Future<List<String>> fetchQuestions() async {
+  static Future<List<Map<String, dynamic>>> fetchQuestions() async {
     final response = await http.get(Uri.parse('$baseUrl/questions'));
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
-      return List<String>.from(data.map((question) => question['text']));
+      return List<Map<String, dynamic>>.from(data);
     } else {
       throw Exception('Failed to load questions');
     }
