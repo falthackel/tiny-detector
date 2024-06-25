@@ -43,14 +43,34 @@ class ApiService {
     }
   }
 
-  static Future<void> submitAnswers(int userId, Map<String, bool> answers) async {
+  static Future<void> submitAnswers(int userId, Map<String, int> answers, int totalScore, int results) async {
     final response = await http.post(
       Uri.parse('$baseUrl/assessments'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'id': userId, 'answers': answers}),
+      body: jsonEncode({
+        'id': userId,
+        ...answers,
+        'total_score': totalScore,
+        'results': results
+      }),
     );
     if (response.statusCode != 200) {
       throw Exception('Failed to submit answers');
+    }
+  }
+
+  static Future<void> updateAssessment(int responseId, Map<String, int> answers, int totalScore, int results) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/assessments/$responseId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        ...answers,
+        'total_score': totalScore,
+        'results': results
+      }),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update assessment');
     }
   }
 
@@ -64,17 +84,6 @@ class ApiService {
       });
     } else {
       throw Exception('Failed to load user assessment');
-    }
-  }
-
-  static Future<void> updateAssessment(int responseId, Map<String, bool> answers) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/assessments/$responseId'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'answers': answers}),
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to update assessment');
     }
   }
 
