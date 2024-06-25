@@ -22,6 +22,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
   int totalScore = 0;
   List<Map<String, dynamic>> questions = [];
   final Map<int, bool> answers = {};
+  final Map<String, int> intAnswers = {};
 
   @override
   void initState() {
@@ -37,7 +38,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
         setState(() {
           questions = fetchedQuestions;
           answers.addAll(previousAnswers);
-          totalScore = answers.values.where((value) => value).length;
+          totalScore = calculateTotalScore(answers);
           currentAnswer = answers[currentQuestionIndex]?.toString();
         });
       } else {
@@ -50,15 +51,24 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
     }
   }
 
+  int calculateTotalScore(Map<int, bool> answers) {
+    int score = 0;
+    answers.forEach((key, value) {
+      if (([2, 5, 12].contains(key) && value) || (![2, 5, 12].contains(key) && !value)) {
+        score++;
+      }
+    });
+    return score;
+  }
+
   void handleAnswer(bool answer) {
     setState(() {
       currentAnswer = answer.toString();
       answers[currentQuestionIndex] = answer;
+      intAnswers['q${currentQuestionIndex + 1}'] = answer ? 1 : 0;
       _saveAnswer(currentQuestionIndex, answer.toString());
 
-      if ([1, 4, 11].contains(currentQuestionIndex) && answer) {
-        totalScore++;
-      } else if (currentQuestionIndex < 20 && !answer) {
+      if (([2, 5, 12].contains(currentQuestionIndex + 1) && answer) || (![2, 5, 12].contains(currentQuestionIndex + 1) && !answer)) {
         totalScore++;
       }
 
@@ -73,12 +83,11 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
 
   void _submitResults() async {
     try {
-      Map<String, bool> jsonFriendlyAnswers = answers.map((key, value) => MapEntry(key.toString(), value));
-
+      int results = totalScore <= 2 ? 1 : totalScore <= 7 ? 2 : 3;
       if (widget.responseId != null) {
-        await ApiService.updateAssessment(widget.responseId!, jsonFriendlyAnswers);
+        await ApiService.updateAssessment(widget.responseId!, intAnswers, totalScore, results);
       } else {
-        await ApiService.submitAnswers(widget.userId, jsonFriendlyAnswers);
+        await ApiService.submitAnswers(widget.userId, intAnswers, totalScore, results);
       }
       _navigateToResultPage();
     } catch (e) {
@@ -90,17 +99,17 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
   }
 
   void _navigateToResultPage() {
-    if (totalScore < 3) {
+    if (totalScore <= 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LowResult(userId: widget.userId)),
       );
-    } else if (totalScore >= 3 && totalScore <= 7) {
+    } else if (totalScore <= 7) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MedResult(userId: widget.userId)),
       );
-    } else if (totalScore >= 8) {
+    } else {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HighResult(userId: widget.userId)),
