@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
 const port = 3000;
@@ -129,7 +130,7 @@ app.get('/user-assessments/:userId', async (req, res) => {
   }
 });
 
-// Endpoint to fetch questions
+// Endpoint to fetch questions with images
 app.get('/questions', (req, res) => {
   const questions = [
     "Jika Anda menunjuk sesuatu di ruangan, apakah anak Anda melihatnya? (Misalnya, jika Anda menunjuk hewan atau mainan, apakah anak Anda melihat ke arah hewan atau mainan yang Anda tunjuk?)",
@@ -153,8 +154,43 @@ app.get('/questions', (req, res) => {
     "Jika sesuatu yang baru terjadi, apakah anak Anda menatap wajah Anda untuk melihat perasaan Anda tentang hal tersebut? (Misalnya, jika anak Anda mendengar bunyi aneh atau lucu, atau melihat mainan baru, akankah dia menatap wajah Anda?)",
     "Apakah anak Anda menyukai aktivitas yang bergerak? (Misalnya, diayun-ayun atau dihentak-hentakkan pada lutut Anda)"
   ];
-  res.status(200).json(questions.map((question, index) => ({ id: index + 1, text: question })));
+
+  const images = [
+    'image1.png',
+    'image2.png',
+    'image3.png',
+    'image4.png',
+    'image5.png',
+    'image6.png',
+    'image7.png',
+    'image8.png',
+    'image9.png',
+    'image10.png',
+    'image11.png',
+    'image12.png',
+    'image13.png',
+    'image14.png',
+    'image15.png',
+    'image16.png',
+    'image17.png',
+    'image18.png',
+    'image19.png',
+    'image20.png'
+  ];
+
+  const githubBaseUrl = 'https://raw.githubusercontent.com/falthackel/tiny-detector/main/flutter_tiny_detector/assets/';
+
+  const questionsWithImages = questions.map((question, index) => ({
+    id: index + 1,
+    text: question,
+    imageUrl: `${githubBaseUrl}${images[index]}`
+  }));
+
+  res.status(200).json(questionsWithImages);
 });
+
+// Serve static images (if local)
+// app.use('/images', express.static(path.join(__dirname, 'flutter_tiny_detector/assets')));
 
 // Start the server
 app.listen(port, () => {
