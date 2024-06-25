@@ -74,8 +74,18 @@ class ApiService {
     }
   }
 
-  static Future<Map<int, bool>> fetchUserAssessment(int userId) async {
-    final response = await http.get(Uri.parse('$baseUrl/user-assessments/$userId'));
+  static Future<List<Map<String, dynamic>>> fetchUserAssessments() async {
+    final response = await http.get(Uri.parse('$baseUrl/user-assessments'));
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      throw Exception('Failed to load user assessments');
+    }
+  }
+
+  static Future<Map<int, bool>> fetchUserAssessment(int responseId) async {
+    final response = await http.get(Uri.parse('$baseUrl/user-assessments/$responseId'));
     if (response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
       return data['assessments'].fold<Map<int, bool>>({}, (map, item) {

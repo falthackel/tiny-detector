@@ -102,50 +102,50 @@ app.put('/assessments/:responseId', async (req, res) => {
   }
 });
 
-app.get('/user-assessments/:userId', async (req, res) => {
+// Endpoint to fetch all user assessments
+app.get('/user-assessments', async (req, res) => {
   try {
-    const { userId } = req.params;
     const result = await pool.query(
-      `SELECT u.id, u.name, u.domicile, u.gender, u.age, 
-              json_agg(json_build_object(
-                'response_id', a.response_id,
-                'q1', a.q1,
-                'q2', a.q2,
-                'q3', a.q3,
-                'q4', a.q4,
-                'q5', a.q5,
-                'q6', a.q6,
-                'q7', a.q7,
-                'q8', a.q8,
-                'q9', a.q9,
-                'q10', a.q10,
-                'q11', a.q11,
-                'q12', a.q12,
-                'q13', a.q13,
-                'q14', a.q14,
-                'q15', a.q15,
-                'q16', a.q16,
-                'q17', a.q17,
-                'q18', a.q18,
-                'q19', a.q19,
-                'q20', a.q20,
-                'total_score', a.total_score,
-                'results', a.results
-              )) as assessments
+      `SELECT 
+         u.id AS user_id, 
+         u.name, 
+         u.domicile, 
+         u.gender, 
+         u.age, 
+         json_agg(json_build_object(
+           'response_id', a.response_id,
+           'q1', a.q1,
+           'q2', a.q2,
+           'q3', a.q3,
+           'q4', a.q4,
+           'q5', a.q5,
+           'q6', a.q6,
+           'q7', a.q7,
+           'q8', a.q8,
+           'q9', a.q9,
+           'q10', a.q10,
+           'q11', a.q11,
+           'q12', a.q12,
+           'q13', a.q13,
+           'q14', a.q14,
+           'q15', a.q15,
+           'q16', a.q16,
+           'q17', a.q17,
+           'q18', a.q18,
+           'q19', a.q19,
+           'q20', a.q20,
+           'total_score', a.total_score,
+           'results', a.results
+         )) as assessments
        FROM users u
        JOIN assessments a ON u.id = a.id
-       WHERE u.id = $1
-       GROUP BY u.id`,
-      [userId]
+       GROUP BY u.id, u.name, u.domicile, u.gender, u.age`
     );
-    if (result.rows.length === 0) {
-      res.status(404).json({ error: 'User not found' });
-    } else {
-      res.status(200).json(result.rows[0]);
-    }
+    
+    res.status(200).json(result.rows);
   } catch (error) {
     console.error('Error fetching user assessments:', error.message);
-    res.status500.json({ error: 'An error occurred while fetching assessments' });
+    res.status(500).json({ error: 'An error occurred while fetching assessments' });
   }
 });
 
@@ -210,6 +210,42 @@ app.get('/questions', (req, res) => {
 
 // Serve static images (if local)
 // app.use('/images', express.static(path.join(__dirname, 'flutter_tiny_detector/assets')));
+
+// // Google OAuth2 client
+// const client = new OAuth2Client('YOUR_GOOGLE_CLIENT_ID');
+
+// app.post('/auth/google', async (req, res) => {
+//   const { token } = req.body;
+//   try {
+//     const ticket = await client.verifyIdToken({
+//       idToken: token,
+//       audience: 'YOUR_GOOGLE_CLIENT_ID',
+//     });
+//     const payload = ticket.getPayload();
+//     const { sub, email, name } = payload;
+
+//     // Check if user exists
+//     const user = await pool.query(
+//       'SELECT * FROM users WHERE oauth_provider = $1 AND oauth_id = $2',
+//       ['google', sub]
+//     );
+
+//     if (user.rows.length === 0) {
+//       // Create new user
+//       const newUser = await pool.query(
+//         'INSERT INTO users (name, email, oauth_provider, oauth_id) VALUES ($1, $2, $3, $4) RETURNING *',
+//         [name, email, 'google', sub]
+//       );
+//       res.status(201).json(newUser.rows[0]);
+//     } else {
+//       // User exists, return user data
+//       res.status(200).json(user.rows[0]);
+//     }
+//   } catch (error) {
+//     console.error('Error verifying Google token:', error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
 // Start the server
 app.listen(port, () => {
