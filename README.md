@@ -22,7 +22,7 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 1. Merapikan page pertanyaan dan jawaban (tidak termasuk video)
 
 <br>28 Mei 2024
-1. Menyelesaikan masalah terkait page pertanyaan dan jawaban (belum selesai pada bagian melanjutkan penilaian)
+1. Menyelesaikan masalah terkait page pertanyaan dan jawaban (selesai, 25 Juni 2024)
 
 <br>29 Mei 2024
 1. Melanjutkan debug page pertanyaan dan jawaban
@@ -40,5 +40,10 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 1. Menambah API untuk check user
 2. Memperbaiki API untuk join DB
 3. Memperbaiki aksesibilitas API service untuk format data supaya menjadi JSON
-4. Troubleshooting integrasi DB dengan FE dan BE (masih ada permasalahan dalam menyimpan respons jawaban)
-5. Merevisi page penilaian yang tersimpan (masih belum selesai, masih error)
+4. Troubleshooting integrasi DB dengan FE dan BE (selesai, 25 Juni 2024)
+5. Merevisi page penilaian yang tersimpan (selesai, 25 Juni 2024)
+
+<br>25 Juni 2024
+1. Menambah API penyimpanan response kuesioner
+2. Menambah API pertanyaan dan gambar pada pertanyaan
+3. Troubleshooting historis penilaian (masih belum bisa nampilin banyak list)
