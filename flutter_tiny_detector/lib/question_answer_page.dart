@@ -20,7 +20,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
   int currentQuestionIndex = 0;
   String? currentAnswer;
   int totalScore = 0;
-  List<String> questions = [];
+  List<Map<String, dynamic>> questions = [];
   final Map<int, bool> answers = {};
 
   @override
@@ -31,7 +31,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
 
   Future<void> fetchQuestions() async {
     try {
-      List<String> fetchedQuestions = await ApiService.fetchQuestions();
+      List<Map<String, dynamic>> fetchedQuestions = await ApiService.fetchQuestions();
       if (widget.responseId != null) {
         Map<int, bool> previousAnswers = await ApiService.fetchUserAssessment(widget.responseId!);
         setState(() {
@@ -175,9 +175,15 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                     const SizedBox(height: 20.0),
                     Container(
                       height: 150,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(questions[currentQuestionIndex]['imageUrl'] ?? ''),
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
                     Text(
-                      questions[currentQuestionIndex],
+                      questions[currentQuestionIndex]['text'] ?? 'No question text available',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
