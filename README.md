@@ -2,7 +2,7 @@
 
 Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi yang dapat mendeteksi indikasi ASD (_Autism Spectrum Disorder_) pada Balita dengan penerapan kuesioner M-CHAT.
 
-19 April 2024
+<br>19 April 2024
 1. Membuat inisiasi appBar (masih terdapat kendala pada widget sidebar, logo, dan search bar)
 
 <br>21 April 2024
@@ -49,4 +49,4 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 3. Troubleshooting historis penilaian (masih belum bisa nampilin banyak list)
 
 <br>26 Juni 2024
-1. Menambah page sign up (hanya front end)
+1. Menambah page login dan sign up (hanya front end)
