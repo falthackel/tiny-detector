@@ -24,22 +24,22 @@ class SignUpPage extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Mulailah perjalanan sehat bersama kami.',
+                  'Cegah kasus ASD pada balita lebih dahulu.',
                   style: TextStyle(
                     fontSize: 16,
                     color: Color(0xFF00BFA6),
                   ),
                 ),
                 SizedBox(height: 30),
-                _buildTextField('Nama', 'Farrel Jonathan Vickeldo'),
+                _buildTextField('Nama', 'Masukkan nama lengkap'),
                 SizedBox(height: 20),
-                _buildDropdownField('Umur', '21 Tahun'),
+                _buildTextField('Umur', 'Masukkan umur dalam tahun'),
                 SizedBox(height: 20),
-                _buildTextField('Profesi', 'Guru'),
+                _buildTextField('Profesi', 'Masukkan profesi'),
                 SizedBox(height: 20),
-                _buildTextField('E-mail', 'farrel.jonathan.fj@gmail.com'),
+                _buildTextField('E-mail', 'Masukkan email'),
                 SizedBox(height: 20),
-                _buildPasswordField('Kata sandi', '***********'),
+                _buildPasswordField('Kata sandi', 'Masukkan password'),
                 SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
@@ -109,31 +109,6 @@ class SignUpPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      ),
-    );
-  }
-
-  Widget _buildDropdownField(String label, String placeholder) {
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: placeholder,
-          onChanged: (String? newValue) {},
-          items: <String>['21 Tahun', '22 Tahun', '23 Tahun']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-        ),
       ),
     );
   }
