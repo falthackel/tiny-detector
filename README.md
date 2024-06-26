@@ -47,3 +47,6 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 1. Menambah API penyimpanan response kuesioner
 2. Menambah API pertanyaan dan gambar pada pertanyaan
 3. Troubleshooting historis penilaian (masih belum bisa nampilin banyak list)
+
+<br>26 Juni 2024
+1. Menambah page sign up (hanya front end)
