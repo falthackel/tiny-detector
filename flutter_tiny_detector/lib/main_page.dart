@@ -104,9 +104,3 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
-
-void main() {
-  runApp(MaterialApp(
-    home: MainPage(userId: 1), // Pass a default userId for now
-  ));
-}
