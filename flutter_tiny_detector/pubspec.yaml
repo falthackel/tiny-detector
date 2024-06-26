@@ -68,6 +68,7 @@ flutter:
   assets:
     - assets/tiny-detector-colored.jpeg
     - assets/tiny-detector-white.png
+    - assets/faq.png
     - assets/image1.png
     - assets/image2.png
     - assets/image3.png
