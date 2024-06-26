@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'assessment_history.dart';
 import 'toddler_profile_widget.dart';
+import 'faq_page.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class FeaturesOptions extends StatelessWidget {
@@ -114,7 +115,14 @@ class FeaturesOptions extends StatelessWidget {
                   size: 40,
                   color: Colors.black,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FAQPage(),
+                    ),
+                  );
+                },
               ),
             ),
             SizedBox(
