@@ -14,8 +14,8 @@ class LoginPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Image.asset('assets/tiny-detector-colored.jpeg', height: 100),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Masuk',
                   style: TextStyle(
                     fontSize: 24,
@@ -23,25 +23,25 @@ class LoginPage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 10),
-                Text(
+                const SizedBox(height: 10),
+                const Text(
                   'Selamat datang kembali.',
                   style: TextStyle(
                     fontSize: 16,
                     color: Color(0xFF00BFA6),
                   ),
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 _buildTextField('E-mail', 'Masukkan email'),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildPasswordField('Kata sandi', 'Masukkan kata sandi'),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MainPage(userId: 1), // Provide a default userId for testing
+                        builder: (context) => const MainPage(userId: 1), // Provide a default userId for testing
                       ),
                     );
                   },
@@ -50,9 +50,9 @@ class LoginPage extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Masuk',
                     style: TextStyle(
                       fontSize: 18,
@@ -60,19 +60,19 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Atau',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.black,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: () {},
-                  icon: Icon(Icons.login, color: Colors.white),
-                  label: Text(
+                  icon: const Icon(Icons.login, color: Colors.white),
+                  label: const Text(
                     'Masuk melalui Google',
                     style: TextStyle(
                       fontSize: 18,
@@ -80,14 +80,14 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFFFA132), // background color
+                    backgroundColor: const Color(0xFFFFA132), // background color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -97,7 +97,7 @@ class LoginPage extends StatelessWidget {
                       ),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     'Pengguna baru? Daftar di sini',
                     style: TextStyle(
                       fontSize: 16,
