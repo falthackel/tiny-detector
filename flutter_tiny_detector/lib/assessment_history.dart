@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tiny_detector/footer.dart';
 import 'api_service.dart';
 import 'low_result.dart';
 import 'med_result.dart';
 import 'high_result.dart';
 
 class AssessmentHistory extends StatefulWidget {
-  const AssessmentHistory({super.key, required this.userId});
-
   final int userId;
+
+  const AssessmentHistory({super.key, required this.userId});
 
   @override
   _AssessmentHistoryState createState() => _AssessmentHistoryState();
@@ -27,7 +28,7 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
     try {
       final data = await ApiService.fetchUserAssessments();
       setState(() {
-        userAssessments = data;
+        userAssessments = List<Map<String, dynamic>>.from(data);
         errorMessage = '';
       });
     } catch (e) {
@@ -119,7 +120,8 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
                                   ),
                                 ),
                               );
-                            }).toList()
+                            }).toList(),
+                            Footer(),
                           ],
                         );
                       }).toList(),
