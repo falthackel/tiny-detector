@@ -23,11 +23,19 @@ class _SavedAssessmentState extends State<SavedAssessment> {
 
   Future<void> _fetchSavedAssessments() async {
     try {
-      final response = await ApiService.fetchUserAssessment(widget.userId);
-      setState(() {
-        savedAssessments = List<Map<String, dynamic>>.from(response.values); // Ensure it's a list of maps
-        errorMessage = savedAssessments.isEmpty ? 'Tidak ada penilaian yang dapat dilanjutkan' : '';
-      });
+      final data = await ApiService.fetchUserAssessments();
+      final userAssessments = data.where((user) => user['user_id'] == widget.userId).toList();
+      if (userAssessments.isNotEmpty) {
+        setState(() {
+          savedAssessments = List<Map<String, dynamic>>.from(userAssessments.first['assessments']);
+          errorMessage = savedAssessments.isEmpty ? 'Tidak ada penilaian yang dapat dilanjutkan' : '';
+        });
+      } else {
+        setState(() {
+          errorMessage = 'Tidak ada penilaian yang dapat dilanjutkan';
+          savedAssessments = [];
+        });
+      }
     } catch (e) {
       setState(() {
         errorMessage = 'Error: $e';
@@ -49,45 +57,78 @@ class _SavedAssessmentState extends State<SavedAssessment> {
   Widget build(BuildContext context) {
     return Container(
       color: const Color.fromARGB(255, 255, 161, 50),
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.all(20),
       child: savedAssessments.isEmpty
-          ? Center(child: Text(errorMessage.isNotEmpty ? errorMessage : 'No saved assessments'))
-          : ListView.builder(
-              itemCount: savedAssessments.length,
-              itemBuilder: (context, index) {
-                final assessment = savedAssessments[index];
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 2, 20, 2),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${assessment['name']}, ${assessment['age']} Bulan',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          _continueAssessment(context, assessment['response_id']);
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              const Color.fromARGB(255, 1, 204, 209)),
-                          padding: MaterialStateProperty.all<EdgeInsets>(
-                              const EdgeInsets.fromLTRB(10, 0, 10, 0)),
-                        ),
-                        child: const Text(
-                          'Lanjutkan tes',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Text(
+                errorMessage.isNotEmpty ? errorMessage : 'No saved assessments',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Anda masih belum menyelesaikan tes.',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                );
-              },
+                ),
+                const SizedBox(height: 20),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: savedAssessments.length,
+                    itemBuilder: (context, index) {
+                      final assessment = savedAssessments[index];
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${assessment['name']}, ${assessment['age']} Bulan',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                _continueAssessment(context, assessment['response_id']);
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all<Color>(
+                                  const Color.fromARGB(255, 1, 204, 209),
+                                ),
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                                ),
+                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                  ),
+                                ),
+                              ),
+                              child: const Text(
+                                'Lanjutkan Tes',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
     );
   }

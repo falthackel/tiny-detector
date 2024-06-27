@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bodyParser = require('body-parser');
-const path = require('path');
 
 const app = express();
 const port = 3000;
@@ -64,41 +63,61 @@ app.post('/users/check', async (req, res) => {
   }
 });
 
-// Endpoint to submit assessment answers
+// Combined endpoint to save individual question answers or submit entire assessment
 app.post('/assessments', async (req, res) => {
   try {
-    const { id, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, total_score, results } = req.body;
+    const { id, responseId, answers, total_score, results, questionNumber, answer } = req.body;
 
-    await pool.query(
-      `INSERT INTO assessments (id, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, total_score, results) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)`,
-      [id, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, total_score, results]
-    );
+    if (questionNumber !== undefined && answer !== undefined) {
+      // Save individual question answer
+      const existingAssessment = await pool.query('SELECT * FROM assessments WHERE id = $1 AND response_id = $2', [id, responseId]);
+
+      if (existingAssessment.rows.length === 0) {
+        // Insert new assessment if it doesn't exist
+        await pool.query(
+          `INSERT INTO assessments (id, response_id, q${questionNumber}) VALUES ($1, $2, $3)`,
+          [id, responseId, answer]
+        );
+      } else {
+        // Update existing assessment
+        await pool.query(
+          `UPDATE assessments SET q${questionNumber} = $3 WHERE id = $1 AND response_id = $2`,
+          [id, responseId, answer]
+        );
+      }
+    } else {
+      // Submit entire assessment
+      const existingAssessment = await pool.query('SELECT * FROM assessments WHERE id = $1 AND response_id = $2', [id, responseId]);
+
+      if (existingAssessment.rows.length === 0) {
+        // Insert new assessment if it doesn't exist
+        const queryKeys = Object.keys(answers).map(key => key).join(", ");
+        const queryValues = Object.keys(answers).map((_, index) => `$${index + 3}`).join(", ");
+        const queryParameters = [id, responseId, ...Object.values(answers), total_score, results];
+
+        await pool.query(
+          `INSERT INTO assessments (id, response_id, ${queryKeys}, total_score, results) 
+           VALUES ($1, $2, ${queryValues}, $${queryParameters.length - 1}, $${queryParameters.length})`,
+          queryParameters
+        );
+      } else {
+        // Update existing assessment
+        const updateSet = Object.keys(answers).map((key, index) => `${key} = $${index + 3}`).join(", ");
+        const queryParameters = [id, responseId, ...Object.values(answers), total_score, results];
+
+        await pool.query(
+          `UPDATE assessments
+           SET ${updateSet}, total_score = $${queryParameters.length - 1}, results = $${queryParameters.length}
+           WHERE id = $1 AND response_id = $2`,
+          queryParameters
+        );
+      }
+    }
 
     res.status(200).json({ success: true });
   } catch (error) {
-    console.error('Error submitting assessment:', error.message);
-    res.status(500).json({ error: 'An error occurred while submitting the assessment' });
-  }
-});
-
-// Endpoint to update assessment
-app.put('/assessments/:responseId', async (req, res) => {
-  try {
-    const { responseId } = req.params;
-    const { q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, total_score, results } = req.body;
-
-    await pool.query(
-      `UPDATE assessments 
-       SET q1 = $1, q2 = $2, q3 = $3, q4 = $4, q5 = $5, q6 = $6, q7 = $7, q8 = $8, q9 = $9, q10 = $10, q11 = $11, q12 = $12, q13 = $13, q14 = $14, q15 = $15, q16 = $16, q17 = $17, q18 = $18, q19 = $19, q20 = $20, total_score = $21, results = $22 
-       WHERE response_id = $23`,
-      [q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, total_score, results, responseId]
-    );
-
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('Error updating assessment:', error.message);
-    res.status(500).json({ error: 'An error occurred while updating the assessment' });
+    console.error('Error saving or submitting assessment:', error.message);
+    res.status(500).json({ error: 'An error occurred while saving or submitting the assessment' });
   }
 });
 
@@ -114,6 +133,8 @@ app.get('/user-assessments', async (req, res) => {
          u.age, 
          json_agg(json_build_object(
            'response_id', a.response_id,
+           'name', u.name,
+           'age', u.age,
            'q1', a.q1,
            'q2', a.q2,
            'q3', a.q3,
@@ -141,7 +162,7 @@ app.get('/user-assessments', async (req, res) => {
        JOIN assessments a ON u.id = a.id
        GROUP BY u.id, u.name, u.domicile, u.gender, u.age`
     );
-    
+
     res.status(200).json(result.rows);
   } catch (error) {
     console.error('Error fetching user assessments:', error.message);
@@ -207,45 +228,6 @@ app.get('/questions', (req, res) => {
 
   res.status(200).json(questionsWithImages);
 });
-
-// Serve static images (if local)
-// app.use('/images', express.static(path.join(__dirname, 'flutter_tiny_detector/assets')));
-
-// // Google OAuth2 client
-// const client = new OAuth2Client('YOUR_GOOGLE_CLIENT_ID');
-
-// app.post('/auth/google', async (req, res) => {
-//   const { token } = req.body;
-//   try {
-//     const ticket = await client.verifyIdToken({
-//       idToken: token,
-//       audience: 'YOUR_GOOGLE_CLIENT_ID',
-//     });
-//     const payload = ticket.getPayload();
-//     const { sub, email, name } = payload;
-
-//     // Check if user exists
-//     const user = await pool.query(
-//       'SELECT * FROM users WHERE oauth_provider = $1 AND oauth_id = $2',
-//       ['google', sub]
-//     );
-
-//     if (user.rows.length === 0) {
-//       // Create new user
-//       const newUser = await pool.query(
-//         'INSERT INTO users (name, email, oauth_provider, oauth_id) VALUES ($1, $2, $3, $4) RETURNING *',
-//         [name, email, 'google', sub]
-//       );
-//       res.status(201).json(newUser.rows[0]);
-//     } else {
-//       // User exists, return user data
-//       res.status(200).json(user.rows[0]);
-//     }
-//   } catch (error) {
-//     console.error('Error verifying Google token:', error);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// });
 
 // Start the server
 app.listen(port, () => {

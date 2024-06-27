@@ -34,10 +34,12 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
     try {
       List<Map<String, dynamic>> fetchedQuestions = await ApiService.fetchQuestions();
       if (widget.responseId != null) {
-        Map<int, bool> previousAnswers = await ApiService.fetchUserAssessment(widget.responseId!);
+        Map<String, dynamic> previousAnswers = await ApiService.fetchUserAssessment(widget.responseId!);
         setState(() {
           questions = fetchedQuestions;
-          answers.addAll(previousAnswers);
+          previousAnswers.forEach((key, value) {
+            answers[int.parse(key.replaceFirst('q', ''))] = value == 1;
+          });
           totalScore = calculateTotalScore(answers);
           currentAnswer = answers[currentQuestionIndex]?.toString();
         });
@@ -61,34 +63,46 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
     return score;
   }
 
-  void handleAnswer(bool answer) {
-    setState(() {
-      currentAnswer = answer.toString();
-      answers[currentQuestionIndex] = answer;
-      intAnswers['q${currentQuestionIndex + 1}'] = answer ? 1 : 0;
-      _saveAnswer(currentQuestionIndex, answer.toString());
+  void handleAnswer(bool answer) async {
+    try {
+      setState(() {
+        currentAnswer = answer.toString();
+        answers[currentQuestionIndex] = answer;
+        intAnswers['q${currentQuestionIndex + 1}'] = answer ? 1 : 0;
 
-      if (([2, 5, 12].contains(currentQuestionIndex + 1) && answer) || (![2, 5, 12].contains(currentQuestionIndex + 1) && !answer)) {
-        totalScore++;
-      }
+        if (([2, 5, 12].contains(currentQuestionIndex + 1) && answer) || (![2, 5, 12].contains(currentQuestionIndex + 1) && !answer)) {
+          totalScore++;
+        }
+      });
+
+      // Save the answer to the database
+      await ApiService.saveQuestionAnswer(
+        widget.userId,
+        widget.responseId ?? 0,
+        currentQuestionIndex + 1,
+        answer ? 1 : 0,
+      );
 
       if (currentQuestionIndex < questions.length - 1) {
-        currentQuestionIndex++;
-        currentAnswer = answers[currentQuestionIndex]?.toString();
+        setState(() {
+          currentQuestionIndex++;
+          currentAnswer = answers[currentQuestionIndex]?.toString();
+        });
       } else {
         _submitResults();
       }
-    });
+    } catch (e) {
+      print('Failed to save answer: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save answer: $e')),
+      );
+    }
   }
 
   void _submitResults() async {
     try {
       int results = totalScore <= 2 ? 1 : totalScore <= 7 ? 2 : 3;
-      if (widget.responseId != null) {
-        await ApiService.updateAssessment(widget.responseId!, intAnswers, totalScore, results);
-      } else {
-        await ApiService.submitAnswers(widget.userId, intAnswers, totalScore, results);
-      }
+      await ApiService.submitAnswers(widget.userId, widget.responseId ?? 0, intAnswers, totalScore, results);
       _navigateToResultPage();
     } catch (e) {
       print('Failed to submit results: $e');
