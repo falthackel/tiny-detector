@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tiny_detector/footer.dart';
 import 'features_options.dart';
 import 'saved_assessment.dart';
 import 'search_widget.dart';
@@ -99,6 +100,7 @@ class _MainPageState extends State<MainPage> {
               style: const TextStyle(fontSize: 18),
             ),
           ),
+          Footer(),
         ],
       ),
     );

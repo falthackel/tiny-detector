@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tiny_detector/footer.dart';
 import 'api_service.dart';
 import 'terms_and_conditions.dart';
 import 'age_options.dart'; // Correct import for AgeOptions
@@ -147,6 +148,7 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text('Submit'),
               ),
+              Footer(),
             ],
           ),
         ),

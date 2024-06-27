@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'footer.dart';
 import 'main_page.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -92,6 +93,7 @@ class SignUpPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
                 ),
+                Footer(),
               ],
             ),
           ),

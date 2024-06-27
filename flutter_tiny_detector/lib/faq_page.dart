@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tiny_detector/footer.dart';
 
 class FAQPage extends StatelessWidget {
   @override
@@ -66,6 +67,7 @@ class FAQPage extends StatelessWidget {
               _buildFAQItem('Apa itu ASD?'),
               _buildFAQItem('Apa saja gejala-gejala ASD?'),
               _buildFAQItem('Kapan gejala dan risiko ASD dapat muncul?'),
+              Footer(),
             ],
           ),
         ),

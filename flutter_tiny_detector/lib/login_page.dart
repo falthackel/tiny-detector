@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main_page.dart';
+import 'footer.dart';
 import 'sign_up_page.dart';
 
 class LoginPage extends StatelessWidget {
@@ -105,6 +106,7 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                Footer(),
               ],
             ),
           ),
