@@ -41,6 +41,7 @@ dependencies:
   http: 1.2.1
   postgres: ^2.4.1
   shelf: ^1.4.1
+  google_sign_in_web: ^0.12.4+1
 
 dev_dependencies:
   flutter_test:
