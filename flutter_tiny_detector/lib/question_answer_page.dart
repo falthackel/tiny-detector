@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart';
 import 'main_page.dart';
 import 'low_result.dart';
@@ -38,10 +37,16 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
         setState(() {
           questions = fetchedQuestions;
           previousAnswers.forEach((key, value) {
-            answers[int.parse(key.replaceFirst('q', ''))] = value == 1;
+            if (key.startsWith('q') && value != null) {
+              int questionNumber = int.parse(key.substring(1));
+              answers[questionNumber] = value == 1;
+              intAnswers[key] = value;
+              if (questionNumber > currentQuestionIndex) {
+                currentQuestionIndex = questionNumber;
+              }
+            }
           });
-          totalScore = calculateTotalScore(answers);
-          currentAnswer = answers[currentQuestionIndex]?.toString();
+          currentAnswer = answers[currentQuestionIndex + 1]?.toString();
         });
       } else {
         setState(() {
@@ -53,26 +58,13 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
     }
   }
 
-  int calculateTotalScore(Map<int, bool> answers) {
-    int score = 0;
-    answers.forEach((key, value) {
-      if (([2, 5, 12].contains(key) && value) || (![2, 5, 12].contains(key) && !value)) {
-        score++;
-      }
-    });
-    return score;
-  }
-
   void handleAnswer(bool answer) async {
     try {
       setState(() {
         currentAnswer = answer.toString();
-        answers[currentQuestionIndex] = answer;
+        answers[currentQuestionIndex + 1] = answer;
         intAnswers['q${currentQuestionIndex + 1}'] = answer ? 1 : 0;
 
-        if (([2, 5, 12].contains(currentQuestionIndex + 1) && answer) || (![2, 5, 12].contains(currentQuestionIndex + 1) && !answer)) {
-          totalScore++;
-        }
       });
 
       // Save the answer to the database
@@ -86,7 +78,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
       if (currentQuestionIndex < questions.length - 1) {
         setState(() {
           currentQuestionIndex++;
-          currentAnswer = answers[currentQuestionIndex]?.toString();
+          currentAnswer = answers[currentQuestionIndex + 1]?.toString();
         });
       } else {
         _submitResults();
@@ -101,9 +93,9 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
 
   void _submitResults() async {
     try {
-      int results = totalScore <= 2 ? 1 : totalScore <= 7 ? 2 : 3;
-      await ApiService.submitAnswers(widget.userId, widget.responseId ?? 0, intAnswers, totalScore, results);
-      _navigateToResultPage();
+      Map<String, dynamic> response = await ApiService.submitAnswers(widget.responseId ?? 0);
+      int result = response['result'];
+      _navigateToResultPage(result);
     } catch (e) {
       print('Failed to submit results: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -112,13 +104,13 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
     }
   }
 
-  void _navigateToResultPage() {
-    if (totalScore <= 2) {
+  void _navigateToResultPage(int result) {
+    if (result == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LowResult(userId: widget.userId)),
       );
-    } else if (totalScore <= 7) {
+    } else if (result == 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MedResult(userId: widget.userId)),
@@ -131,22 +123,17 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
     }
   }
 
-  void _saveAnswer(int index, String? answer) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('question_$index', answer ?? '');
-    await prefs.setInt('currentQuestionIndex', currentQuestionIndex);
-  }
-
   void _navigateToNextQuestion() {
     setState(() {
       if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
-        currentAnswer = answers[currentQuestionIndex]?.toString();
+        currentAnswer = answers[currentQuestionIndex + 1]?.toString();
       }
     });
   }
 
   void _navigateToPreviousQuestion() {
+    print(intAnswers);
     setState(() {
       if (currentQuestionIndex > 0) {
         currentQuestionIndex--;
@@ -163,7 +150,6 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            _saveAnswer(currentQuestionIndex, currentAnswer);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => MainPage(userId: widget.userId)),
@@ -180,7 +166,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                 child: Column(
                   children: [
                     Text(
-                      'Pertanyaan ${currentQuestionIndex + 1}',
+                      'Pertanyaan ${currentQuestionIndex+1}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -205,6 +191,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20.0),
                     Text(
                       questions[currentQuestionIndex]['text'] ?? 'No question text available',
                       style: const TextStyle(
@@ -218,7 +205,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                       children: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: currentAnswer == 'true' ? Colors.green : Colors.white,
+                            backgroundColor: intAnswers['q${currentQuestionIndex+1}'] == 1 ? Colors.green : Colors.white,
                           ),
                           onPressed: () {
                             handleAnswer(true);
@@ -227,7 +214,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: currentAnswer == 'false' ? Colors.red : Colors.white,
+                            backgroundColor: intAnswers['q${currentQuestionIndex+1}'] == 0 ? Colors.red : Colors.white,
                           ),
                           onPressed: () {
                             handleAnswer(false);
