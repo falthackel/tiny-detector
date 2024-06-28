@@ -7,7 +7,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>> createUser(Map<String, dynamic> userData) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/users'),
+      Uri.parse('$baseUrl/form'),
       body: jsonEncode(userData),
       headers: {'Content-Type': 'application/json'},
     );
@@ -21,7 +21,7 @@ class ApiService {
 
   static Future<bool> checkUserExists(Map<String, dynamic> userData) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/users/check'),
+      Uri.parse('$baseUrl/check'),
       body: jsonEncode(userData),
       headers: {'Content-Type': 'application/json'},
     );
@@ -44,13 +44,12 @@ class ApiService {
   }
 
   static Future<void> saveQuestionAnswer(int userId, int responseId, int questionNumber, int answer) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/assessments'),
+    final response = await http.put(
+      Uri.parse('$baseUrl/form'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'id': userId,
-        'responseId': responseId,
-        'questionNumber': questionNumber,
+        'id': responseId,
+        'qid': questionNumber,
         'answer': answer,
       }),
     );
@@ -59,25 +58,24 @@ class ApiService {
     }
   }
 
-  static Future<void> submitAnswers(int userId, int responseId, Map<String, int> answers, int totalScore, int results) async {
+  static Future<Map<String, dynamic>> submitAnswers(int responseId) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/assessments/submit'),
+      Uri.parse('$baseUrl/submit'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'id': userId,
-        'responseId': responseId,
-        'answers': answers,
-        'total_score': totalScore,
-        'results': results,
+        'id': responseId,
       }),
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      return Map<String, dynamic>.from(data);
+    } else {
       throw Exception('Failed to submit answers');
     }
   }
 
   static Future<List<Map<String, dynamic>>> fetchUserAssessments() async {
-    final response = await http.get(Uri.parse('$baseUrl/user-assessments'));
+    final response = await http.get(Uri.parse('$baseUrl/unsubmitted'));
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return List<Map<String, dynamic>>.from(data);
@@ -86,8 +84,18 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> fetchUserAssessment(int responseId) async {
-    final response = await http.get(Uri.parse('$baseUrl/assessments/$responseId'));
+  static Future<List<Map<String, dynamic>>> fetchHistoryAssessments() async {
+    final response = await http.get(Uri.parse('$baseUrl/submitted'));
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      throw Exception('Failed to load user assessments');
+    }
+  }
+
+  static Future<Map<String, dynamic>> fetchUserAssessment(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/toddler/$id'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
