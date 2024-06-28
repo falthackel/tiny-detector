@@ -26,7 +26,7 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
 
   Future<void> _fetchData() async {
     try {
-      final data = await ApiService.fetchUserAssessments();
+      final data = await ApiService.fetchHistoryAssessments();
       setState(() {
         userAssessments = List<Map<String, dynamic>>.from(data);
         errorMessage = '';
@@ -97,33 +97,25 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
                 : SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: userAssessments.map((user) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ...(user['assessments'] as List).map<Widget>((assessment) {
-                              return ListTile(
-                                title: Text("${user['name']} (${user['age']} bulan)"),
-                                subtitle: Text('${user['domicile']}, ${user['gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
-                                trailing: ElevatedButton(
-                                  onPressed: () {
-                                    _navigateToResult(context, user['user_id'], assessment['results']);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color.fromARGB(255, 255, 161, 50), // Set button color using hex code
-                                  ),
-                                  child: const Text(
-                                    'Lihat Penilaian',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                      children: userAssessments.map((assessment) {
+                          return ListTile(
+                            title: Text("${assessment['name']} (${assessment['age']} bulan)"),
+                            subtitle: Text('${assessment['domicile']}, ${assessment['gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
+                            trailing: ElevatedButton(
+                              onPressed: () {
+                                _navigateToResult(context, assessment['id'], assessment['result']);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromARGB(255, 255, 161, 50), // Set button color using hex code
+                              ),
+                              child: const Text(
+                                'Lihat Penilaian',
+                                style: TextStyle(
+                                  color: Colors.white,
                                 ),
-                              );
-                            }).toList(),
-                            Footer(),
-                          ],
-                        );
+                              ),
+                            ),
+                          );
                       }).toList(),
                     ),
                   ),
