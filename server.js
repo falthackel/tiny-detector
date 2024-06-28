@@ -18,41 +18,16 @@ const pool = new Pool({
   port: 5432,
 });
 
-// Endpoint to fetch all users
-app.get('/users', async (req, res) => {
-  try {
-    const users = await pool.query('SELECT * FROM users');
-    res.status(200).json(users.rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'An error occurred while fetching users' });
-  }
-});
-
-// Endpoint to create a new user
-app.post('/users', async (req, res) => {
-  try {
-    const { name, domicile, gender, age } = req.body;
-    const newUser = await pool.query(
-      'INSERT INTO users (name, domicile, gender, age) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, domicile, gender, age]
-    );
-    res.status(201).json(newUser.rows[0]);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
 // Endpoint to check if a user exists
-app.post('/users/check', async (req, res) => {
+app.post('/check', async (req, res) => {
   try {
     const { name, domicile, gender, age } = req.body;
-    const user = await pool.query(
+    const toddler = await pool.query(
       'SELECT * FROM users WHERE name = $1 AND domicile = $2 AND gender = $3 AND age = $4',
       [name, domicile, gender, age]
     );
 
-    if (user.rows.length > 0) {
+    if (toddler.rows.length > 0) {
       res.status(200).json({ exists: true });
     } else {
       res.status(200).json({ exists: false });
@@ -60,113 +35,6 @@ app.post('/users/check', async (req, res) => {
   } catch (error) {
     console.error('Error checking user existence:', error.message);
     res.status(500).json({ error: 'An error occurred while checking user existence' });
-  }
-});
-
-// Combined endpoint to save individual question answers or submit entire assessment
-app.post('/assessments', async (req, res) => {
-  try {
-    const { id, responseId, answers, total_score, results, questionNumber, answer } = req.body;
-
-    if (questionNumber !== undefined && answer !== undefined) {
-      // Save individual question answer
-      const existingAssessment = await pool.query('SELECT * FROM assessments WHERE id = $1 AND response_id = $2', [id, responseId]);
-
-      if (existingAssessment.rows.length === 0) {
-        // Insert new assessment if it doesn't exist
-        await pool.query(
-          `INSERT INTO assessments (id, response_id, q${questionNumber}) VALUES ($1, $2, $3)`,
-          [id, responseId, answer]
-        );
-      } else {
-        // Update existing assessment
-        await pool.query(
-          `UPDATE assessments SET q${questionNumber} = $3 WHERE id = $1 AND response_id = $2`,
-          [id, responseId, answer]
-        );
-      }
-    } else {
-      // Submit entire assessment
-      const existingAssessment = await pool.query('SELECT * FROM assessments WHERE id = $1 AND response_id = $2', [id, responseId]);
-
-      if (existingAssessment.rows.length === 0) {
-        // Insert new assessment if it doesn't exist
-        const queryKeys = Object.keys(answers).map(key => key).join(", ");
-        const queryValues = Object.keys(answers).map((_, index) => `$${index + 3}`).join(", ");
-        const queryParameters = [id, responseId, ...Object.values(answers), total_score, results];
-
-        await pool.query(
-          `INSERT INTO assessments (id, response_id, ${queryKeys}, total_score, results) 
-           VALUES ($1, $2, ${queryValues}, $${queryParameters.length - 1}, $${queryParameters.length})`,
-          queryParameters
-        );
-      } else {
-        // Update existing assessment
-        const updateSet = Object.keys(answers).map((key, index) => `${key} = $${index + 3}`).join(", ");
-        const queryParameters = [id, responseId, ...Object.values(answers), total_score, results];
-
-        await pool.query(
-          `UPDATE assessments
-           SET ${updateSet}, total_score = $${queryParameters.length - 1}, results = $${queryParameters.length}
-           WHERE id = $1 AND response_id = $2`,
-          queryParameters
-        );
-      }
-    }
-
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('Error saving or submitting assessment:', error.message);
-    res.status(500).json({ error: 'An error occurred while saving or submitting the assessment' });
-  }
-});
-
-// Endpoint to fetch all user assessments
-app.get('/user-assessments', async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT 
-         u.id AS user_id, 
-         u.name, 
-         u.domicile, 
-         u.gender, 
-         u.age, 
-         json_agg(json_build_object(
-           'response_id', a.response_id,
-           'name', u.name,
-           'age', u.age,
-           'q1', a.q1,
-           'q2', a.q2,
-           'q3', a.q3,
-           'q4', a.q4,
-           'q5', a.q5,
-           'q6', a.q6,
-           'q7', a.q7,
-           'q8', a.q8,
-           'q9', a.q9,
-           'q10', a.q10,
-           'q11', a.q11,
-           'q12', a.q12,
-           'q13', a.q13,
-           'q14', a.q14,
-           'q15', a.q15,
-           'q16', a.q16,
-           'q17', a.q17,
-           'q18', a.q18,
-           'q19', a.q19,
-           'q20', a.q20,
-           'total_score', a.total_score,
-           'results', a.results
-         )) as assessments
-       FROM users u
-       JOIN assessments a ON u.id = a.id
-       GROUP BY u.id, u.name, u.domicile, u.gender, u.age`
-    );
-
-    res.status(200).json(result.rows);
-  } catch (error) {
-    console.error('Error fetching user assessments:', error.message);
-    res.status(500).json({ error: 'An error occurred while fetching assessments' });
   }
 });
 
@@ -228,6 +96,105 @@ app.get('/questions', (req, res) => {
 
   res.status(200).json(questionsWithImages);
 });
+
+app.get("/unsubmitted", async (req, res) => {
+  try {
+    const toddler = await pool.query('SELECT * FROM toddler WHERE result IS NULL');
+    res.status(200).json(toddler.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+})
+
+app.get("/submitted", async (req, res) => {
+  try {
+    const toddler = await pool.query('SELECT * FROM toddler WHERE result IS NOT NULL');
+    res.status(200).json(toddler.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+})
+
+app.post('/form', async (req, res) => {
+  try {
+    const { name, domicile, gender, age } = req.body;
+    const newToddler = await pool.query(
+      'INSERT INTO toddler (name, domicile, gender, age) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, domicile, gender, age]
+    );
+    res.status(201).json(newToddler.rows[0]);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.put('/form', async (req, res) => {
+  try {
+    const { id, qid, answer } = req.body;
+    const updated = await pool.query(
+      `UPDATE toddler SET q${qid} = $1 WHERE id = $2 RETURNING *`,
+      [answer, id]
+    )
+    res.status(200).json(updated.rows[0]);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+})
+
+app.post('/submit', async (req, res) => {
+  try {
+    const { id } = req.body;
+    const toddlers = await pool.query("SELECT * FROM toddler WHERE id = $1", [id])
+    const toddler = toddlers.rows[0];
+
+    let sum = 0;
+
+    for (let i = 0; i < 20; i++) {
+      console.log(toddler[`q${i}`])
+      if (i == 1 || i == 4 || i == 11) {
+        sum += parseInt(toddler[`q${i+1}`])
+      } else {
+        sum += 1 - parseInt(toddler[`q${i+1}`])
+      }
+      console.log(sum)
+      console.log()
+    }
+
+    const total_score = sum;
+    let result = -1
+    if (total_score >= 0 && total_score <= 2) {
+      result = 1;
+    } else if (total_score >= 3 && total_score <= 7) {
+      result = 2;
+    } else if (total_score >= 8 && total_score <= 20) {
+      result = 3;
+    }
+    console.log(id, total_score, result)
+    
+    const updated = await pool.query(
+      `UPDATE toddler SET total_score = $1, result = $2 WHERE id = $3 RETURNING *`,
+      [total_score, result, id]
+    )
+    res.status(200).json(updated.rows[0]);
+  } catch (error) {
+    console.error(error)
+    res.status(400).json({ error: error.message });
+  }
+})
+
+app.get('/toddler/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const toddler = await pool.query('SELECT * FROM toddler WHERE id = $1', [id]);
+    res.status(200).json(toddler.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+})
 
 // Start the server
 app.listen(port, () => {
