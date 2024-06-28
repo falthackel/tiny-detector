@@ -24,10 +24,10 @@ class _SavedAssessmentState extends State<SavedAssessment> {
   Future<void> _fetchSavedAssessments() async {
     try {
       final data = await ApiService.fetchUserAssessments();
-      final userAssessments = data.where((user) => user['user_id'] == widget.userId).toList();
+      final userAssessments = data;
       if (userAssessments.isNotEmpty) {
         setState(() {
-          savedAssessments = List<Map<String, dynamic>>.from(userAssessments.first['assessments']);
+          savedAssessments = List<Map<String, dynamic>>.from(userAssessments);
           errorMessage = savedAssessments.isEmpty ? 'Tidak ada penilaian yang dapat dilanjutkan' : '';
         });
       } else {
@@ -62,7 +62,8 @@ class _SavedAssessmentState extends State<SavedAssessment> {
       child: savedAssessments.isEmpty
           ? Center(
               child: Text(
-                errorMessage.isNotEmpty ? errorMessage : 'No saved assessments',
+                errorMessage.isNotEmpty ? errorMessage : 'Tidak ada penilaian yang dapat dilanjutkan. Silakan membuat penilaian baru',
+
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -102,7 +103,7 @@ class _SavedAssessmentState extends State<SavedAssessment> {
                             ),
                             TextButton(
                               onPressed: () {
-                                _continueAssessment(context, assessment['response_id']);
+                                _continueAssessment(context, assessment['id']);
                               },
                               style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all<Color>(
