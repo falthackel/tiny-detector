@@ -50,3 +50,7 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 
 <br>26 Juni 2024
 1. Menambah page login dan sign up (hanya front end)
+
+<br>28 Juni 2024
+1. Memperbaiki endpoint
+2. Menambah APi
