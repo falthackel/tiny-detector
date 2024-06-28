@@ -45,7 +45,7 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => TermsAndCondition(userId: userId), // Navigate to terms and conditions
+                builder: (context) => TermsAndCondition(userId: userId, responseId: userId), // Navigate to terms and conditions
               ),
             );
           } else {
