@@ -123,13 +123,10 @@ app.post("/login", async (req, res) => {
       const userId = assessor.rows[0].id;
       const token = generateToken(userId);
       res.status(200).json({ token });
-      console.log(email, password, token);
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
     }
-    console.log(email, password);
   } catch (error){
-    console.log(email, password);
     console.error(error);
     res.status(500).json({ error: 'An error occurred while logging in' });
   }
