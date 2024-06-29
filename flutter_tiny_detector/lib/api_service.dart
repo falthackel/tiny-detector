@@ -45,7 +45,21 @@ class ApiService {
 
   static Future<bool> checkToddlerExists(Map<String, dynamic> userData) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/checkToddler'),
+      Uri.parse('$baseUrl/check/toddler'),
+      body: jsonEncode(userData),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['exists'];
+    } else {
+      throw Exception('Failed to check if user exists');
+    }
+  }
+
+  static Future<bool> checkAssessorExists(Map<String, dynamic> userData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/check/assessor'),
       body: jsonEncode(userData),
       headers: {'Content-Type': 'application/json'},
     );
