@@ -103,17 +103,6 @@ class ApiService {
     }
   }
 
-  static Future<List<User>> fetchUsers() async {
-    final response = await http.get(Uri.parse('$baseUrl/users'));
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      return data.map<User>((json) => User.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load users');
-    }
-  }
-
   static Future<String> attemptLogIn(String email, String password) async {
     final response = await http.post(Uri.parse('$baseUrl/login'),
       headers: <String, String>{
@@ -125,8 +114,13 @@ class ApiService {
       }),
     );
 
+    print(email);
+    print(password);
     if (response.statusCode == 200) {
-      return jsonDecode(response.body)['token'];
+      String token = jsonDecode(response.body)['token'];
+      print(response.body);
+      print('Token: $token');
+      return token;
     } else {
       throw Exception('Failed to login');
     }
