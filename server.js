@@ -217,11 +217,11 @@ app.post('/submit', async (req, res) => {
     } else if (total_score >= 8 && total_score <= 20) {
       result = 3;
     }
-    console.log(id, total_score, result)
+    console.log(toddler_id, total_score, result)
     
     const updated = await pool.query(
       `UPDATE toddler SET total_score = $1, result = $2 WHERE toddler_id = $3 RETURNING *`,
-      [total_score, result, id]
+      [total_score, result, toddler_id]
     )
     res.status(200).json(updated.rows[0]);
   } catch (error) {
@@ -230,12 +230,16 @@ app.post('/submit', async (req, res) => {
   }
 })
 
-app.get('/toddler/:id', async (req, res) => {
+app.get('/toddler/:toddler_id', async (req, res) => {
   try {
     const { toddler_id } = req.params;
 
     const toddler = await pool.query('SELECT * FROM toddler WHERE toddler_id = $1', [toddler_id]);
-    res.status(200).json(toddler.rows[0]);
+    if (toddler.rows.length > 0) {
+      res.status(200).json(toddler.rows[0]);
+    } else {
+      res.status(404).json({ error: 'Toddler not found' });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while fetching users' });
