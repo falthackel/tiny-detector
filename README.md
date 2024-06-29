@@ -54,3 +54,8 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 <br>28 Juni 2024
 1. Memperbaiki endpoint
 2. Menambah APi
+
+<br>29 Juni 2024
+1. Menyelesaikan fitur login dan sign up
+2. Menambah token dengan hashing
+3. Menyelesaikan semua fitur utama (penilaian, melanjutkan penilaian, dan historis penilaian)
