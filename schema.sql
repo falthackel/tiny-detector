@@ -34,7 +34,7 @@ CREATE TABLE toddler (
     q18 int,
     q19 int,
     q20 int,
-    total_core int,
+    total_score int,
     result int,
     FOREIGN KEY (assessor_id) REFERENCES assessor(assessor_id)
 );
