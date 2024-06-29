@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tiny_detector/footer.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'api_service.dart';
 import 'terms_and_conditions.dart';
 import 'age_options.dart'; // Correct import for AgeOptions
@@ -19,6 +20,13 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
   bool isLoading = false; // Loading state
   int selectedAge = -1; // Selected age
   late bool userExists;
+  int? assessorId; // Assessor ID
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _submitProfile() async {
     if (_formKey.currentState!.validate() && selectedAge != -1) {
@@ -26,13 +34,24 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
         isLoading = true; // Set loading state to true
       });
 
-      final userData = {
-        'name': nameController.text,
-        'domicile': domicileController.text,
-        'gender': selectedGender == 'Laki-laki' ? 1 : 2, // 1 for male and 2 for female
-        'age': selectedAge,
-      };
       try {
+        String? token = await ApiService.getToken();
+
+        if (token == null) {
+          throw Exception('Token is null');
+        }
+
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+        int assessorId = decodedToken['userId'];
+
+        final userData = {
+          'toddler_name': nameController.text,
+          'toddler_domicile': domicileController.text,
+          'toddler_gender': selectedGender == 'Laki-laki' ? 1 : 2,
+          'toddler_age': selectedAge,
+          'assessor_id': assessorId,
+        };
+
         userExists = await ApiService.checkUserExists(userData);
         if (userExists) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -40,8 +59,8 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
           );
         } else {
           final response = await ApiService.createUser(userData);
-          if (response.containsKey('id')) {
-            int userId = response['id']; // Extract userId from response
+          if (response.containsKey('toddler_id')) {
+            int userId = response['toddler_id']; // Extract userId from response
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -49,7 +68,7 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
               ),
             );
           } else {
-            throw Exception("Failed to get user ID from response");
+            throw Exception("Failed to get toddler ID");
           }
         }
       } catch (e) {
