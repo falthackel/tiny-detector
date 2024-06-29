@@ -18,11 +18,24 @@ class SignUpPage extends StatelessWidget {
     String email = emailController.text;
     String password = passwordController.text;
 
+    final userData = {
+      'assessor_name': name,
+      'assessor_email': email,
+    };
+
     try {
+      bool userExists = await ApiService.checkAssessorExists(userData);
+      if (userExists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Pengguna sudah ada, gunakan email lain.')),
+        );
+        return;
+      }
+
       Map<String, dynamic> response = await ApiService.attemptSignUp(name, age, profession, email, password);
       print(response);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Daftar pengguna berhasil: $response')),
+        SnackBar(content: Text('Daftar pengguna berhasil: ${response['assessor_name']}')),
       );
       Navigator.pushReplacement(
         context,
