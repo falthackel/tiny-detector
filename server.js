@@ -165,9 +165,12 @@ app.post("/signup", async (req, res) => {
   }
 })
 
-app.get("/unsubmitted", async (req, res) => {
+app.post("/unsubmitted", async (req, res) => {
   try {
-    const toddler = await pool.query('SELECT * FROM toddler WHERE result IS NULL');
+    const { assessor_id } = req.body;
+    const toddler = await pool.query('SELECT * FROM toddler WHERE result IS NULL AND assessor_id = $1',
+      [assessor_id]
+    );
     res.status(200).json(toddler.rows);
   } catch (error) {
     console.error(error);
@@ -175,9 +178,12 @@ app.get("/unsubmitted", async (req, res) => {
   }
 })
 
-app.get("/submitted", async (req, res) => {
+app.post("/submitted", async (req, res) => {
   try {
-    const toddler = await pool.query('SELECT * FROM toddler WHERE result IS NOT NULL');
+    const { assessor_id } = req.body;
+    const toddler = await pool.query('SELECT * FROM toddler WHERE result IS NOT NULL AND assessor_id = $1',
+      [assessor_id]
+    );
     res.status(200).json(toddler.rows);
   } catch (error) {
     console.error(error);

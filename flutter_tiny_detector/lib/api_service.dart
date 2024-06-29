@@ -107,8 +107,14 @@ class ApiService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchUserAssessments() async {
-    final response = await http.get(Uri.parse('$baseUrl/unsubmitted'));
+  static Future<List<Map<String, dynamic>>> fetchUserAssessments(int responseId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/unsubmitted'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'assessor_id': responseId,
+      }),
+    );
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return List<Map<String, dynamic>>.from(data);
@@ -117,8 +123,14 @@ class ApiService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchHistoryAssessments() async {
-    final response = await http.get(Uri.parse('$baseUrl/submitted'));
+  static Future<List<Map<String, dynamic>>> fetchHistoryAssessments(int responseId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/submitted'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'assessor_id': responseId,
+      }),
+    );
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return List<Map<String, dynamic>>.from(data);
