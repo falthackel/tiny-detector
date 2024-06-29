@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final storage = const FlutterSecureStorage();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final ValueNotifier<bool> _obscureText = ValueNotifier<bool>(true);
 
   Future<void> storeToken(String token) async {
     await storage.write(key: 'jwt_token', value: token);
@@ -86,9 +87,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                _buildTextField('E-mail', 'Masukkan email', emailController),
+                _buildTextField(label: 'E-mail', placeholder:  'Masukkan email', controller:  emailController),
                 const SizedBox(height: 20),
-                _buildPasswordField('Kata sandi', 'Masukkan kata sandi', passwordController),
+                _buildPasswordField(label: 'Kata sandi', placeholder: 'Masukkan kata sandi', controller: passwordController),
                 const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: login,
@@ -161,7 +162,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildTextField(String label, String placeholder, TextEditingController controller) {
+  Widget _buildTextField({
+    required String label, 
+    required String placeholder, 
+    required TextEditingController controller, 
+    TextInputType keyboardType = TextInputType.text}) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -170,24 +175,36 @@ class _LoginPageState extends State<LoginPage> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       ),
+      keyboardType: keyboardType,
     );
   }
 
-  Widget _buildPasswordField(String label, String placeholder, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      obscureText: true,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: placeholder,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        suffixIcon: Icon(Icons.visibility),
-      ),
+  Widget _buildPasswordField({
+    required String label, 
+    required String placeholder,
+    required TextEditingController controller}) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: _obscureText,
+      builder: (context, value, child) {
+        return TextField(
+          controller: controller,
+          obscureText: value,
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: placeholder,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            suffixIcon: IconButton(
+              icon: Icon(value ? Icons.visibility : Icons.visibility_off),
+              onPressed: () => _obscureText.value = !value,
+            ),
+          ),
+        );
+      }
     );
   }
 }
