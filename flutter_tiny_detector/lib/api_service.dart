@@ -125,7 +125,7 @@ class ApiService {
     }
   }
 
-  static Future<String> attemptSignUp(String name, int age, String profession, String email, String password) async {
+  static Future<Map<String, dynamic>> attemptSignUp(String name, int age, String profession, String email, String password) async {
     final response = await http.post(Uri.parse('$baseUrl/signup'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -139,7 +139,7 @@ class ApiService {
       }),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to sign up');

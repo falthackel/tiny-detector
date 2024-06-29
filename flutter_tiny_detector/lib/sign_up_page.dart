@@ -1,8 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tiny_detector/api_service.dart';
+import 'package:flutter_tiny_detector/login_page.dart';
 import 'footer.dart';
-import 'main_page.dart';
 
 class SignUpPage extends StatelessWidget {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController ageController = TextEditingController();
+  final TextEditingController professionController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final ValueNotifier<bool> _obscureText = ValueNotifier<bool>(true);
+
+  Future<void> signUp(BuildContext context) async {
+    String name = nameController.text;
+    int age = int.tryParse(ageController.text) ?? 0;
+    String profession = professionController.text;
+    String email = emailController.text;
+    String password = passwordController.text;
+
+    try {
+      Map<String, dynamic> response = await ApiService.attemptSignUp(name, age, profession, email, password);
+      print(response);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Daftar pengguna berhasil: $response')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Daftar pengguna gagal: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,26 +63,20 @@ class SignUpPage extends StatelessWidget {
                     color: Color(0xFF00BFA6),
                   ),
                 ),
-                const SizedBox(height: 30),
-                _buildTextField('Nama', 'Masukkan nama lengkap'),
                 const SizedBox(height: 20),
-                _buildTextField('Umur', 'Masukkan umur dalam tahun'),
+                _buildTextField(label: 'Name', placeholder: 'Enter your name', controller: nameController),
+                const SizedBox(height: 10),
+                _buildTextField(label: 'Age', placeholder: 'Enter your age', controller: ageController, keyboardType: TextInputType.number),
+                const SizedBox(height: 10),
+                _buildTextField(label: 'Profession', placeholder: 'Enter your profession',controller: professionController),
+                const SizedBox(height: 10),
+                _buildTextField(label: 'Email', placeholder: 'Enter your email', controller: emailController, keyboardType: TextInputType.emailAddress),
+                const SizedBox(height: 10),
+                _buildPasswordField(label: 'Password', placeholder: 'Enter your password', controller: passwordController),
                 const SizedBox(height: 20),
-                _buildTextField('Profesi', 'Masukkan profesi'),
                 const SizedBox(height: 20),
-                _buildTextField('E-mail', 'Masukkan email'),
-                const SizedBox(height: 20),
-                _buildPasswordField('Kata sandi', 'Masukkan password'),
-                const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MainPage(userId: 1), // Provide a default userId for testing
-                      ),
-                    );
-                  },
+                  onPressed: () => signUp(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF00BFA6), // background color
                     shape: RoundedRectangleBorder(
@@ -59,7 +85,7 @@ class SignUpPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   ),
                   child: const Text(
-                    'Daftar',
+                    'Daftar Pengguna',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,
@@ -67,32 +93,6 @@ class SignUpPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Atau',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.login, color: Colors.white),
-                  label: const Text(
-                    'Daftar melalui Google',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFA132), // background color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  ),
-                ),
                 Footer(),
               ],
             ),
@@ -102,8 +102,13 @@ class SignUpPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label, String placeholder) {
+  Widget _buildTextField({
+    required String label, 
+    required String placeholder, 
+    required TextEditingController controller, 
+    TextInputType keyboardType = TextInputType.text}) {
     return TextField(
+      controller: controller,
       decoration: InputDecoration(
         labelText: label,
         hintText: placeholder,
@@ -112,21 +117,34 @@ class SignUpPage extends StatelessWidget {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       ),
+      keyboardType: keyboardType,
     );
   }
 
-  Widget _buildPasswordField(String label, String placeholder) {
-    return TextField(
-      obscureText: true,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: placeholder,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        suffixIcon: const Icon(Icons.visibility),
-      ),
+  Widget _buildPasswordField({
+    required String label, 
+    required String placeholder,
+    required TextEditingController controller}) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: _obscureText,
+      builder: (context, value, child) {
+        return TextField(
+          controller: controller,
+          obscureText: value,
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: placeholder,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            suffixIcon: IconButton(
+              icon: Icon(value ? Icons.visibility : Icons.visibility_off),
+              onPressed: () => _obscureText.value = !value,
+            ),
+          ),
+        );
+      }
     );
   }
 }
