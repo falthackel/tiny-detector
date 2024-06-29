@@ -94,7 +94,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
   void _submitResults() async {
     try {
       Map<String, dynamic> response = await ApiService.submitAnswers(widget.responseId ?? 0);
-      int result = response['toddler_result'];
+      int result = response['result'];
       _navigateToResultPage(result);
     } catch (e) {
       print('Failed to submit results: $e');
