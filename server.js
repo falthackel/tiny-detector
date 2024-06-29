@@ -32,6 +32,26 @@ function generateToken(userId) {
 const userId = 1; // Replace with actual user ID
 const token = generateToken(userId);
 
+// Endpoint to get assessor profile
+app.post("/users", async (req, res) => {
+  try {
+    const { assessor_email } = req.body; // Extract from request body
+    const assessor = await pool.query(
+      'SELECT * FROM assessor WHERE assessor_email = $1',
+      [assessor_email]
+    );
+
+    if (assessor.rows.length === 0) {
+      return res.status(404).json({ error: 'Assessor not found' });
+    }
+
+    res.status(200).json(assessor.rows);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+});
+
 // Endpoint to check if a user exists
 app.post('/checkToddler', async (req, res) => {
   try {
