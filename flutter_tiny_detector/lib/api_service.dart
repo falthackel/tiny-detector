@@ -113,4 +113,43 @@ class ApiService {
       throw Exception('Failed to load users');
     }
   }
+
+  Future<String> attemptLogIn(String email, String password) async {
+    final response = await http.post(Uri.parse('$baseUrl/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['token'];
+    } else {
+      throw Exception('Failed to login');
+    }
+  }
+
+  Future<String> attemptSignUp(String name, int age, String profession, String email, String password) async {
+    final response = await http.post(Uri.parse('$baseUrl/signup'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'name': name,
+        'age': age.toString(),
+        'profession': profession,
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to sign up');
+    }
+  }
 }
