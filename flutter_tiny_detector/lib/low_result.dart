@@ -1,53 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_tiny_detector/api_service.dart';
+import 'package:flutter_tiny_detector/custom_appbar.dart';
+import 'package:flutter_tiny_detector/login_page.dart';
+import 'package:flutter_tiny_detector/sidebar.dart';
 import 'package:flutter_tiny_detector/main_page.dart';
 
-class LowResult extends StatelessWidget {
+class LowResult extends StatefulWidget {
   final int userId;
 
   const LowResult({super.key, required this.userId});
 
   @override
+  _LowResultState createState() => _LowResultState();
+}
+
+class _LowResultState extends State<LowResult> {
+  final storage = const FlutterSecureStorage();
+  String? name;
+  String? email;
+
+  Future<void> _logout() async {
+    await storage.delete(key: 'jwt_token');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
+  Future<void> fetchAssessor() async {
+    try {
+      // Retrieve the saved email from storage
+      String? storedEmail = await storage.read(key: 'email');
+
+      if (storedEmail != null) {
+        Map<String, dynamic> assessor = await ApiService.fetchAssessor(storedEmail);
+        print(assessor);
+
+        // Access assessor_name and assessor_email from the response
+        setState(() {
+          name = assessor['assessor_name'] as String?;
+          email = assessor['assessor_email'] as String?;
+        });
+      } else {
+        print('No email found in storage');
+      }
+    } catch (e) {
+      print('Failed to fetch assessor: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Example call to fetch assessor data
+    fetchAssessor(); // Replace with actual values
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 1, 204, 209),
-        title: const SizedBox(
-          height: 40,
-          child: Center(
-            child: Image(
-              image: AssetImage('assets/tiny-detector-white.png'), // Replace with your image path
-              fit: BoxFit.contain, // Adjust image fitting if needed
-            ),
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.menu, size: 35, color: Colors.white),
-          onPressed: () {
-            // Handle sidebar menu button press
-          },
-        ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.all(5),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.person),
-              onPressed: () {
-                // Handle profile button press (navigate to profile page, etc.)
-              },
-            ),
-          ),
-        ],
+      appBar: const CustomAppBar(
+        title: 'Tiny Detector',
+        backgroundColor: Color.fromARGB(255, 1, 204, 209),
+      ),
+      drawer: Sidebar(
+        name: name, 
+        email: email, 
+        onLogout: _logout
       ),
       body: Container(
         margin: const EdgeInsets.all(15),
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 1, 204, 209),
-          borderRadius: BorderRadius.circular(30.0), // Set corner radius to 30
+          borderRadius: BorderRadius.circular(30.0),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -83,7 +110,7 @@ class LowResult extends StatelessWidget {
             ),
             const SizedBox(height: 30.0),
             Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space buttons horizontally
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
                   onPressed: () {
@@ -96,11 +123,11 @@ class LowResult extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => MainPage(userId: userId)),
-                    ); // Navigate back to MainPage
+                      MaterialPageRoute(builder: (context) => MainPage(userId: widget.userId)),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF04A0A4), // Set button color using hex code
+                    backgroundColor: const Color(0xFF04A0A4),
                   ),
                   child: const Text(
                     'Kembali ke Beranda',
