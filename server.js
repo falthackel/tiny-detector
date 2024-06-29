@@ -97,6 +97,32 @@ app.get('/questions', (req, res) => {
   res.status(200).json(questionsWithImages);
 });
 
+app.post("/login", async (req, res) => {
+  try{
+    const assessor = await pool.query(
+      'SELECT * FROM assessor WHERE email = $1 AND password $2',
+      [email, password]
+    )
+    res.status(200).json(toddler.rows);
+  } catch (error){
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+})
+
+app.post("/signup", async (req, res) => {
+  try{
+    const { name, age, profession, email, password } = req.body;
+    const newAsessor = await pool.query(
+      'INSERT INTO assessor (name, age, profession, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, age, profession, email, password]
+    );
+    res.status(201).json(newAsessor.rows[0]);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+})
+
 app.get("/unsubmitted", async (req, res) => {
   try {
     const toddler = await pool.query('SELECT * FROM toddler WHERE result IS NULL');
