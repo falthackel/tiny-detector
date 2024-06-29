@@ -31,7 +31,7 @@ result int
 create table assessor (
 id serial,
 name text NOT NULL,
-gender int NOT NULL,
+age int NOT NULL,
 profession text NOT NULL,
 email text NOT NULL,
 password text NOT NULL
