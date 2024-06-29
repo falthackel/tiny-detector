@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'question_answer_page.dart';
 import 'api_service.dart';
 
@@ -14,6 +16,29 @@ class SavedAssessment extends StatefulWidget {
 class _SavedAssessmentState extends State<SavedAssessment> {
   List<Map<String, dynamic>> savedAssessments = [];
   String errorMessage = '';
+  final storage = const FlutterSecureStorage();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  Future<void> storeToken(String token) async {
+    await storage.write(key: 'jwt_token', value: token);
+  }
+
+  bool isTokenExpired(String token) {
+    return JwtDecoder.isExpired(token);
+  }
+
+  Future<int?> getUserId() async {
+    try {
+      String? token = await storage.read(key: 'jwt_token');
+      if (token != null && !isTokenExpired(token)) {
+        return JwtDecoder.decode(token)['userId'] as int?;
+      }
+    } catch (e) {
+      print('Error retrieving user ID: $e');
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -22,24 +47,31 @@ class _SavedAssessmentState extends State<SavedAssessment> {
   }
 
   Future<void> _fetchSavedAssessments() async {
-    try {
-      final data = await ApiService.fetchUserAssessments();
-      final userAssessments = data;
-      if (userAssessments.isNotEmpty) {
+    int? userId = await getUserId();
+    if (userId != null) {
+      try {
+        final data = await ApiService.fetchUserAssessments(userId);
+        final userAssessments = data;
+        if (userAssessments.isNotEmpty) {
+          setState(() {
+            savedAssessments = List<Map<String, dynamic>>.from(userAssessments);
+            errorMessage = savedAssessments.isEmpty ? 'Tidak ada penilaian yang dapat dilanjutkan' : '';
+          });
+        } else {
+          setState(() {
+            errorMessage = 'Tidak ada penilaian yang dapat dilanjutkan';
+            savedAssessments = [];
+          });
+        }
+      } catch (e) {
         setState(() {
-          savedAssessments = List<Map<String, dynamic>>.from(userAssessments);
-          errorMessage = savedAssessments.isEmpty ? 'Tidak ada penilaian yang dapat dilanjutkan' : '';
-        });
-      } else {
-        setState(() {
-          errorMessage = 'Tidak ada penilaian yang dapat dilanjutkan';
+          errorMessage = 'Error: $e';
           savedAssessments = [];
         });
       }
-    } catch (e) {
+    } else {
       setState(() {
-        errorMessage = 'Error: $e';
-        savedAssessments = [];
+        errorMessage = 'User ID not found.';
       });
     }
   }

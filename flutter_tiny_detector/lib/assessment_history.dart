@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_tiny_detector/footer.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'api_service.dart';
 import 'low_result.dart';
 import 'med_result.dart';
@@ -17,6 +19,29 @@ class AssessmentHistory extends StatefulWidget {
 class _AssessmentHistoryState extends State<AssessmentHistory> {
   List<Map<String, dynamic>> userAssessments = [];
   String errorMessage = '';
+  final storage = const FlutterSecureStorage();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  Future<void> storeToken(String token) async {
+    await storage.write(key: 'jwt_token', value: token);
+  }
+
+  bool isTokenExpired(String token) {
+    return JwtDecoder.isExpired(token);
+  }
+
+  Future<int?> getUserId() async {
+    try {
+      String? token = await storage.read(key: 'jwt_token');
+      if (token != null && !isTokenExpired(token)) {
+        return JwtDecoder.decode(token)['userId'] as int?;
+      }
+    } catch (e) {
+      print('Error retrieving user ID: $e');
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -25,16 +50,23 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
   }
 
   Future<void> _fetchData() async {
-    try {
-      final data = await ApiService.fetchHistoryAssessments();
+    int? userId = await getUserId();
+    if (userId != null) {
+      try {
+        final data = await ApiService.fetchHistoryAssessments(userId);
+        setState(() {
+          userAssessments = List<Map<String, dynamic>>.from(data);
+          errorMessage = '';
+        });
+      } catch (e) {
+        setState(() {
+          errorMessage = 'Error: $e';
+          userAssessments = [];
+        });
+      }
+    } else {
       setState(() {
-        userAssessments = List<Map<String, dynamic>>.from(data);
-        errorMessage = '';
-      });
-    } catch (e) {
-      setState(() {
-        errorMessage = 'Error: $e';
-        userAssessments = [];
+        errorMessage = 'User ID not found.';
       });
     }
   }
@@ -93,7 +125,7 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
         child: errorMessage.isNotEmpty
             ? Center(child: Text(errorMessage))
             : userAssessments.isEmpty
-                ? const Center(child: Text('Loading...'))
+                ? const Center(child: Text('Tidak ada historis penilaian'))
                 : SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
