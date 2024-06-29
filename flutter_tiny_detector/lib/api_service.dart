@@ -114,7 +114,7 @@ class ApiService {
     }
   }
 
-  Future<String> attemptLogIn(String email, String password) async {
+  static Future<String> attemptLogIn(String email, String password) async {
     final response = await http.post(Uri.parse('$baseUrl/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -132,7 +132,7 @@ class ApiService {
     }
   }
 
-  Future<String> attemptSignUp(String name, int age, String profession, String email, String password) async {
+  static Future<String> attemptSignUp(String name, int age, String profession, String email, String password) async {
     final response = await http.post(Uri.parse('$baseUrl/signup'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
