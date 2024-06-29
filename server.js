@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 3000;
@@ -18,12 +19,26 @@ const pool = new Pool({
   port: 5432,
 });
 
+function generateToken(userId) {
+  const payload = { userId };
+  const secret = 'your-secret-key'; // Replace with your secret key
+  const options = { expiresIn: '1h' }; // Token expires in 1 hour
+
+  const token = jwt.sign(payload, secret, options);
+  return token;
+}
+
+// Example usage
+const userId = 1; // Replace with actual user ID
+const token = generateToken(userId);
+console.log('Generated Token:', token);
+
 // Endpoint to check if a user exists
 app.post('/check', async (req, res) => {
   try {
     const { name, domicile, gender, age } = req.body;
     const toddler = await pool.query(
-      'SELECT * FROM users WHERE name = $1 AND domicile = $2 AND gender = $3 AND age = $4',
+      'SELECT * FROM toddler WHERE name = $1 AND domicile = $2 AND gender = $3 AND age = $4',
       [name, domicile, gender, age]
     );
 
@@ -99,14 +114,24 @@ app.get('/questions', (req, res) => {
 
 app.post("/login", async (req, res) => {
   try{
+    const { email, password } = req.body;
     const assessor = await pool.query(
-      'SELECT * FROM assessor WHERE email = $1 AND password $2',
+      'SELECT * FROM assessor WHERE email = $1 AND password = $2',
       [email, password]
     )
-    res.status(200).json(toddler.rows);
+    if (assessor.rows.length > 0) {
+      const userId = assessor.rows[0].id;
+      const token = generateToken(userId);
+      res.status(200).json({ token });
+      console.log(email, password, token);
+    } else {
+      res.status(401).json({ error: 'Invalid credentials' });
+    }
+    console.log(email, password);
   } catch (error){
+    console.log(email, password);
     console.error(error);
-    res.status(500).json({ error: 'An error occurred while fetching users' });
+    res.status(500).json({ error: 'An error occurred while logging in' });
   }
 })
 
@@ -119,6 +144,7 @@ app.post("/signup", async (req, res) => {
     );
     res.status(201).json(newAsessor.rows[0]);
   } catch (error) {
+    console.error('Error during signup:', error.message);
     res.status(400).json({ error: error.message });
   }
 })
