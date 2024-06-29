@@ -94,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF00BFA6), // background color
+                    backgroundColor: const Color.fromARGB(255, 255, 161, 50), // background color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -108,34 +108,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Atau',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.login, color: Colors.white),
-                  label: const Text(
-                    'Masuk melalui Google',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFA132), // background color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
