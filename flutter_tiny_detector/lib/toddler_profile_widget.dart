@@ -52,7 +52,7 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
           'assessor_id': assessorId,
         };
 
-        userExists = await ApiService.checkUserExists(userData);
+        userExists = await ApiService.checkToddlerExists(userData);
         if (userExists) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('User data already exists. Please provide different details.')),
