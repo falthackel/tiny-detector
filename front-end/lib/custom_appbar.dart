@@ -13,14 +13,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: backgroundColor,
-      title: SizedBox(
+      centerTitle: true,
+      title: Image.asset(
+        'assets/tiny-detector-white.png', // Your image asset
         height: 40,
-        child: Center(
-          child: Image(
-            image: const AssetImage('assets/tiny-detector-white.png'), // Assuming your image asset
-            fit: BoxFit.contain,
-          ),
-        ),
+        fit: BoxFit.contain,
       ),
       leading: Builder(
         builder: (context) => IconButton(
@@ -28,19 +25,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () => Scaffold.of(context).openDrawer(),
         ),
       ),
-      actions: [
-        Container(
-          margin: const EdgeInsets.all(5),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {}, // Add your action here
-          ),
-        ),
-      ],
     );
   }
 }
