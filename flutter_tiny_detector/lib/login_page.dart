@@ -20,10 +20,6 @@ class _LoginPageState extends State<LoginPage> {
     await storage.write(key: 'jwt_token', value: token);
   }
 
-  Future<String?> getToken() async {
-    return await storage.read(key: 'jwt_token');
-  }
-
   bool isTokenExpired(String token) {
     return JwtDecoder.isExpired(token);
   }
@@ -34,9 +30,13 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       String token = await ApiService.attemptLogIn(email, password);
-      await storeToken(token);
-      print(email);
-      print(password);
+      await storeToken(token);  
+
+      final userId = JwtDecoder.decode(token)['userId'];
+    
+      if (userId == null) {
+        throw Exception('User ID is missing in the token');
+      }
 
       if (isTokenExpired(token)) {
         ScaffoldMessenger.of(context).showSnackBar(
