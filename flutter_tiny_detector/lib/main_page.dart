@@ -3,8 +3,6 @@ import 'package:flutter_tiny_detector/footer.dart';
 import 'features_options.dart';
 import 'saved_assessment.dart';
 import 'search_widget.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class MainPage extends StatefulWidget {
   final int userId;
@@ -16,32 +14,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  String _apiMessage = 'Loading...';
 
   @override
   void initState() {
     super.initState();
-    _fetchData();
-  }
-
-  Future<void> _fetchData() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:3000/users'));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          _apiMessage = data['message'] ?? 'Data loaded successfully';
-        });
-      } else {
-        setState(() {
-          _apiMessage = 'Failed to load data';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _apiMessage = 'Error: $e';
-      });
-    }
   }
 
   @override
@@ -92,13 +68,6 @@ class _MainPageState extends State<MainPage> {
           ),
           Flexible(
             child: FeaturesOptions(userId: widget.userId),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              _apiMessage,
-              style: const TextStyle(fontSize: 18),
-            ),
           ),
           Footer(),
         ],
