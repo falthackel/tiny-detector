@@ -6,6 +6,27 @@ class ApiService {
   static const String baseUrl = 'http://localhost:3000';
   static const storage = FlutterSecureStorage();
 
+  static Future<Map<String, dynamic>> fetchAssessor(String email) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/users'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        // 'assessor_name': name,
+        'assessor_email': email,
+      }),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = jsonDecode(response.body);
+      if (responseData.isNotEmpty) {
+        return Map<String, dynamic>.from(responseData[0]);
+      } else {
+        throw Exception('Assessor not found');
+      }
+    } else {
+      throw Exception('Failed to get users');
+    }
+  }
+
   static Future<Map<String, dynamic>> createUser(Map<String, dynamic> userData) async {
     final response = await http.post(
       Uri.parse('$baseUrl/form'),
@@ -22,7 +43,7 @@ class ApiService {
     }
   }
 
-  static Future<bool> checkUserExists(Map<String, dynamic> userData) async {
+  static Future<bool> checkToddlerExists(Map<String, dynamic> userData) async {
     final response = await http.post(
       Uri.parse('$baseUrl/checkToddler'),
       body: jsonEncode(userData),
@@ -137,6 +158,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       String token = jsonDecode(response.body)['token'];
+      await storage.write(key: 'email', value: email);
       await storage.write(key: 'jwt_token', value: token);
       return token;
     } else {
