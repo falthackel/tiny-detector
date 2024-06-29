@@ -97,7 +97,8 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
                 : SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: userAssessments.map((assessment) {
+                      children: [
+                        ...userAssessments.map((assessment) {
                           return ListTile(
                             title: Text("${assessment['name']} (${assessment['age']} bulan)"),
                             subtitle: Text('${assessment['domicile']}, ${assessment['gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
@@ -116,7 +117,10 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
                               ),
                             ),
                           );
-                      }).toList(),
+                        }),
+                        const SizedBox(height: 20),
+                        Footer(),
+                      ],
                     ),
                   ),
       ),
