@@ -31,15 +31,14 @@ function generateToken(userId) {
 // Example usage
 const userId = 1; // Replace with actual user ID
 const token = generateToken(userId);
-console.log('Generated Token:', token);
 
 // Endpoint to check if a user exists
-app.post('/check', async (req, res) => {
+app.post('/checkToddler', async (req, res) => {
   try {
-    const { name, domicile, gender, age } = req.body;
+    const { toddler_name, toddler_domicile, toddler_gender, toddler_age } = req.body;
     const toddler = await pool.query(
-      'SELECT * FROM toddler WHERE name = $1 AND domicile = $2 AND gender = $3 AND age = $4',
-      [name, domicile, gender, age]
+      'SELECT * FROM toddler WHERE toddler_name = $1 AND toddler_domicile = $2 AND toddler_gender = $3 AND toddler_age = $4',
+      [toddler_name, toddler_domicile, toddler_gender, toddler_age]
     );
 
     if (toddler.rows.length > 0) {
@@ -114,13 +113,13 @@ app.get('/questions', (req, res) => {
 
 app.post("/login", async (req, res) => {
   try{
-    const { email, password } = req.body;
+    const { assessor_email, assessor_password } = req.body;
     const assessor = await pool.query(
-      'SELECT * FROM assessor WHERE email = $1 AND password = $2',
-      [email, password]
+      'SELECT * FROM assessor WHERE assessor_email = $1 AND assessor_password = $2',
+      [assessor_email, assessor_password]
     )
     if (assessor.rows.length > 0) {
-      const userId = assessor.rows[0].id;
+      const userId = assessor.rows[0].assessor_id;
       const token = generateToken(userId);
       res.status(200).json({ token });
     } else {
@@ -134,10 +133,10 @@ app.post("/login", async (req, res) => {
 
 app.post("/signup", async (req, res) => {
   try{
-    const { name, age, profession, email, password } = req.body;
+    const { assessor_name, assessor_age, assessor_profession, assessor_email, assessor_password } = req.body;
     const newAsessor = await pool.query(
-      'INSERT INTO assessor (name, age, profession, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [name, age, profession, email, password]
+      'INSERT INTO assessor (assessor_name, assessor_age, assessor_profession, assessor_email, assessor_password) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [assessor_name, assessor_age, assessor_profession, assessor_email, assessor_password]
     );
     res.status(201).json(newAsessor.rows[0]);
   } catch (error) {
@@ -168,23 +167,24 @@ app.get("/submitted", async (req, res) => {
 
 app.post('/form', async (req, res) => {
   try {
-    const { name, domicile, gender, age } = req.body;
+    const { toddler_name, toddler_domicile, toddler_gender, toddler_age, assessor_id } = req.body;
     const newToddler = await pool.query(
-      'INSERT INTO toddler (name, domicile, gender, age) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, domicile, gender, age]
+      'INSERT INTO toddler (toddler_name, toddler_domicile, toddler_gender, toddler_age, assessor_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [toddler_name, toddler_domicile, toddler_gender, toddler_age, assessor_id]
     );
     res.status(201).json(newToddler.rows[0]);
   } catch (error) {
+    console.error('Error during toddler creation:', error.message);  // Add console log
     res.status(400).json({ error: error.message });
   }
 });
 
 app.put('/form', async (req, res) => {
   try {
-    const { id, qid, answer } = req.body;
+    const { toddler_id, qid, answer } = req.body;
     const updated = await pool.query(
-      `UPDATE toddler SET q${qid} = $1 WHERE id = $2 RETURNING *`,
-      [answer, id]
+      `UPDATE toddler SET q${qid} = $1 WHERE toddler_id = $2 RETURNING *`,
+      [answer, toddler_id]
     )
     res.status(200).json(updated.rows[0]);
   } catch (error) {
@@ -194,21 +194,18 @@ app.put('/form', async (req, res) => {
 
 app.post('/submit', async (req, res) => {
   try {
-    const { id } = req.body;
-    const toddlers = await pool.query("SELECT * FROM toddler WHERE id = $1", [id])
+    const { toddler_id } = req.body;
+    const toddlers = await pool.query("SELECT * FROM toddler WHERE toddler_id = $1", [toddler_id])
     const toddler = toddlers.rows[0];
 
     let sum = 0;
 
     for (let i = 0; i < 20; i++) {
-      console.log(toddler[`q${i}`])
       if (i == 1 || i == 4 || i == 11) {
         sum += parseInt(toddler[`q${i+1}`])
       } else {
         sum += 1 - parseInt(toddler[`q${i+1}`])
       }
-      console.log(sum)
-      console.log()
     }
 
     const total_score = sum;
@@ -223,7 +220,7 @@ app.post('/submit', async (req, res) => {
     console.log(id, total_score, result)
     
     const updated = await pool.query(
-      `UPDATE toddler SET total_score = $1, result = $2 WHERE id = $3 RETURNING *`,
+      `UPDATE toddler SET total_score = $1, result = $2 WHERE toddler_id = $3 RETURNING *`,
       [total_score, result, id]
     )
     res.status(200).json(updated.rows[0]);
@@ -235,9 +232,9 @@ app.post('/submit', async (req, res) => {
 
 app.get('/toddler/:id', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { toddler_id } = req.params;
 
-    const toddler = await pool.query('SELECT * FROM toddler WHERE id = $1', [id]);
+    const toddler = await pool.query('SELECT * FROM toddler WHERE toddler_id = $1', [toddler_id]);
     res.status(200).json(toddler.rows[0]);
   } catch (error) {
     console.error(error);

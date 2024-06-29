@@ -100,11 +100,11 @@ class _AssessmentHistoryState extends State<AssessmentHistory> {
                       children: [
                         ...userAssessments.map((assessment) {
                           return ListTile(
-                            title: Text("${assessment['name']} (${assessment['age']} bulan)"),
-                            subtitle: Text('${assessment['domicile']}, ${assessment['gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
+                            title: Text("${assessment['toddler_name']} (${assessment['toddler_age']} bulan)"),
+                            subtitle: Text('${assessment['toddler_domicile']}, ${assessment['toddler_gender'] == 1 ? 'Laki-laki' : 'Perempuan'}'),
                             trailing: ElevatedButton(
                               onPressed: () {
-                                _navigateToResult(context, assessment['id'], assessment['result']);
+                                _navigateToResult(context, assessment['toddler_id'], assessment['toddler_result']);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color.fromARGB(255, 255, 161, 50), // Set button color using hex code

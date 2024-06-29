@@ -95,7 +95,7 @@ class _SavedAssessmentState extends State<SavedAssessment> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${assessment['name']}, ${assessment['age']} Bulan',
+                              '${assessment['toddler_name']}, ${assessment['toddler_age']} Bulan',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -103,7 +103,7 @@ class _SavedAssessmentState extends State<SavedAssessment> {
                             ),
                             TextButton(
                               onPressed: () {
-                                _continueAssessment(context, assessment['id']);
+                                _continueAssessment(context, assessment['toddler_id']);
                               },
                               style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all<Color>(
