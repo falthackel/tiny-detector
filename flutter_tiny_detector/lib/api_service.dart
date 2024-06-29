@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl = 'http://localhost:3000';
+  static const storage = FlutterSecureStorage();
 
   static Future<Map<String, dynamic>> createUser(Map<String, dynamic> userData) async {
     final response = await http.post(
@@ -14,13 +16,15 @@ class ApiService {
     if (response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
+      print('Response status: ${response.statusCode}');  // Add debug output
+      print('Response body: ${response.body}');          // Add debug output
       throw Exception('Failed to create user');
     }
   }
 
   static Future<bool> checkUserExists(Map<String, dynamic> userData) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/check'),
+      Uri.parse('$baseUrl/checkToddler'),
       body: jsonEncode(userData),
       headers: {'Content-Type': 'application/json'},
     );
@@ -47,7 +51,7 @@ class ApiService {
       Uri.parse('$baseUrl/form'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'id': responseId,
+        'toddler_id': responseId,
         'qid': questionNumber,
         'answer': answer,
       }),
@@ -62,13 +66,22 @@ class ApiService {
       Uri.parse('$baseUrl/submit'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'id': responseId,
+        'toddler_id': responseId,
       }),
     );
     if (response.statusCode == 200) {
-      Map<String, dynamic> data = jsonDecode(response.body);
-      return Map<String, dynamic>.from(data);
+      try {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        print('Submit answers response: $data');
+        return data;
+      } catch (e) {
+        print('Failed to decode JSON: $e');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to decode JSON');
+      }
     } else {
+      print('Failed to submit answers with status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
       throw Exception('Failed to submit answers');
     }
   }
@@ -93,11 +106,20 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> fetchUserAssessment(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/toddler/$id'));
+  static Future<Map<String, dynamic>> fetchUserAssessment(int toddler_id) async {
+    final response = await http.get(Uri.parse('$baseUrl/toddler/$toddler_id'));
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      try {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        print('Fetched user assessment: $data');
+        return data;
+      } catch (e) {
+        print('Failed to decode JSON: $e');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to decode JSON');
+      }
     } else {
+      print('Failed to load user assessment with status code: ${response.statusCode}');
       throw Exception('Failed to load user assessment');
     }
   }
@@ -108,21 +130,22 @@ class ApiService {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'email': email,
-        'password': password,
+        'assessor_email': email,
+        'assessor_password': password,
       }),
     );
 
-    print(email);
-    print(password);
     if (response.statusCode == 200) {
       String token = jsonDecode(response.body)['token'];
-      print(response.body);
-      print('Token: $token');
+      await storage.write(key: 'jwt_token', value: token);
       return token;
     } else {
       throw Exception('Failed to login');
     }
+  }
+
+  static Future<String?> getToken() async {
+    return await storage.read(key: 'jwt_token');
   }
 
   static Future<Map<String, dynamic>> attemptSignUp(String name, int age, String profession, String email, String password) async {
@@ -131,11 +154,11 @@ class ApiService {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'name': name,
-        'age': age.toString(),
-        'profession': profession,
-        'email': email,
-        'password': password,
+        'assessor_name': name,
+        'assessor_age': age.toString(),
+        'assessor_profession': profession,
+        'assessor_email': email,
+        'assessor_password': password,
       }),
     );
 
