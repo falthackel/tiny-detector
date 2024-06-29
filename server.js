@@ -52,13 +52,33 @@ app.post("/users", async (req, res) => {
   }
 });
 
-// Endpoint to check if a user exists
-app.post('/checkToddler', async (req, res) => {
+// Endpoint to check if the Assessor exists
+app.post('/check/assessor', async (req, res) => {
   try {
-    const { toddler_name, toddler_domicile, toddler_gender, toddler_age } = req.body;
+    const { assessor_name, assessor_email } = req.body;
+    const assessor = await pool.query(
+      'SELECT * FROM assessor WHERE assessor_name = $1 AND assessor_email = $2',
+      [assessor_name, assessor_email]
+    );
+
+    if (assessor.rows.length > 0) {
+      res.status(200).json({ exists: true });
+    } else {
+      res.status(200).json({ exists: false });
+    }
+  } catch (error) {
+    console.error('Error checking user existence:', error.message);
+    res.status(500).json({ error: 'An error occurred while checking user existence' });
+  }
+});
+
+// Endpoint to check if the toddler exists
+app.post('/check/toddler', async (req, res) => {
+  try {
+    const { toddler_name, toddler_domicile, toddler_gender, toddler_age, assessor_id } = req.body;
     const toddler = await pool.query(
-      'SELECT * FROM toddler WHERE toddler_name = $1 AND toddler_domicile = $2 AND toddler_gender = $3 AND toddler_age = $4',
-      [toddler_name, toddler_domicile, toddler_gender, toddler_age]
+      'SELECT * FROM toddler WHERE toddler_name = $1 AND toddler_domicile = $2 AND toddler_gender = $3 AND toddler_age = $4 AND assessor_id = $5',
+      [toddler_name, toddler_domicile, toddler_gender, toddler_age, assessor_id]
     );
 
     if (toddler.rows.length > 0) {
