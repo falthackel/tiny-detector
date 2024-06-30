@@ -140,7 +140,7 @@ app.get('/questions', (req, res) => {
     'image20.png'
   ];
 
-  const githubBaseUrl = 'https://raw.githubusercontent.com/falthackel/tiny-detector/main/flutter_tiny_detector/assets/';
+  const githubBaseUrl = 'https://raw.githubusercontent.com/falthackel/tiny-detector/main/front-end/assets/';
 
   const questionsWithImages = questions.map((question, index) => ({
     id: index + 1,
