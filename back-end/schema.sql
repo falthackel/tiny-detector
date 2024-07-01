@@ -36,5 +36,7 @@ CREATE TABLE toddler (
     q20 int,
     total_score int,
     result int,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (assessor_id) REFERENCES assessor(assessor_id)
 );
