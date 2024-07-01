@@ -35,7 +35,7 @@ class _SidebarState extends State<Sidebar> {
         return JwtDecoder.decode(token)['userId'] as int?;
       }
     } catch (e) {
-      print('Error retrieving user ID: $e');
+      print('Gagal mendapatkan user ID: $e');
     }
     return null;
   }
@@ -71,7 +71,7 @@ class _SidebarState extends State<Sidebar> {
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('User ID not found.')),
+                  const SnackBar(content: Text('User ID tidak ditemukan.')),
                 );
               }
             },
@@ -90,21 +90,20 @@ class _SidebarState extends State<Sidebar> {
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('User ID not found.')),
+                  const SnackBar(content: Text('User ID tidak ditemukan.')),
                 );
               }
             },
           ),
-          // ... other ListTile items
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Pengaturan'),
-            onTap: () {
-              Navigator.pop(context);
-              // Navigate to Pengaturan
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.settings),
+          //   title: const Text('Pengaturan'),
+          //   onTap: () {
+          //     Navigator.pop(context);
+          //     // Navigate to Pengaturan
+          //   },
+          // ),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Keluar'),
