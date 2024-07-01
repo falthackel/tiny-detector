@@ -78,31 +78,31 @@ class FeaturesOptions extends StatelessWidget {
             ),
           ],
         ),
-        Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-              color: const Color.fromARGB(255, 1, 204, 209),
-              child: IconButton(
-                icon: Icon(
-                  MdiIcons.hospitalBuilding,
-                  size: 40,
-                  color: Colors.black,
-                ),
-                onPressed: () {},
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.25,
-              child: const Text(
-                'Informasi Klinik Terapi',
-                textAlign: TextAlign.center,
-                maxLines: 2,
-              ),
-            ),
-          ],
-        ),
+        // Column(
+        //   children: [
+        //     Container(
+        //       padding: const EdgeInsets.all(4),
+        //       margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+        //       color: const Color.fromARGB(255, 1, 204, 209),
+        //       child: IconButton(
+        //         icon: Icon(
+        //           MdiIcons.hospitalBuilding,
+        //           size: 40,
+        //           color: Colors.black,
+        //         ),
+        //         onPressed: () {},
+        //       ),
+        //     ),
+        //     SizedBox(
+        //       width: MediaQuery.of(context).size.width * 0.25,
+        //       child: const Text(
+        //         'Informasi Klinik Terapi',
+        //         textAlign: TextAlign.center,
+        //         maxLines: 2,
+        //       ),
+        //     ),
+        //   ],
+        // ),
         Column(
           children: [
             Container(
