@@ -65,3 +65,8 @@ Repository ini dibuat pada tanggal 19 April 2024 dengan tujuan membuat aplikasi 
 2. Membuat logout
 3. Membuat class Sidebar dan CustomAppbar
 4. Membuat FAQ
+
+<br>2 Juli 2024
+1. Menambah created_at dan updated_at pada database, sortir historis penilaian dan penilaian lanjutan dari updated_at DESC
+2. Mengubah font menjadi 'Rubik'
+3. Menghilangkan fitur 'Pengaturan' dan 'Informasi Klinik'
