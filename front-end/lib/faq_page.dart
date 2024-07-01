@@ -5,7 +5,7 @@ class FAQPage extends StatelessWidget {
   final List<Map<String, String>> faqItems = [
     {
       'question': 'Apa itu Tiny Detector?',
-      'answer': 'Tiny Detector adalah aplikasi yang didesain untuk guru prasekolah untuk mendeteksi gejala autisme pada balita. Aplikasi ini menerapkan sistem kuesioner dengan mengisi 20 pertanyaan dengan jawaban \'Ya\' atau \'Tidak\'.',
+      'answer': 'Tiny Detector adalah aplikasi yang didesain untuk guru prasekolah untuk mendeteksi gejala autisme pada balita. Aplikasi ini menerapkan sistem kuesioner dengan mengisi 20 pertanyaan dengan jawaban \'Ya\' atau \'Tidak\'. 20 Pertanyaan ini diambil mengikuti metode kuesioner M-CHAT.',
     },
     {
       'question': 'Siapa saja pengembang Tiny Detector?',
