@@ -68,7 +68,11 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Image.asset('assets/tiny-detector-colored.jpeg', height: 100),
+                Image.asset(
+                  'assets/tiny-detector-colored.png',
+                  height: 200,
+                  width: 200,
+                ),
                 const SizedBox(height: 20),
                 const Text(
                   'Masuk',
