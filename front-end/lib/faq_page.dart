@@ -5,7 +5,7 @@ class FAQPage extends StatelessWidget {
   final List<Map<String, String>> faqItems = [
     {
       'question': 'Apa itu Tiny Detector?',
-      'answer': 'Tiny Detector adalah aplikasi yang didesain untuk guru prasekolah untuk mendeteksi gejala autisme pada balita. Aplikasi ini menerapkan sistem kuesioner dengan mengisi 20 pertanyaan dengan jawaban \'Ya\' atau \'Tidak\'. 20 Pertanyaan ini diambil mengikuti metode kuesioner M-CHAT.',
+      'answer': 'Tiny Detector adalah aplikasi yang didesain untuk guru prasekolah untuk mendeteksi gejala autisme pada balita. Aplikasi ini menerapkan sistem kuesioner dengan mengisi 20 pertanyaan yang diambil mengikuti metode kuesioner M-CHAT-R/F (Modified Checklist for Autism in Toddlers, Revised with Follow-Up), (Robins, 2018).',
     },
     {
       'question': 'Siapa saja pengembang Tiny Detector?',
@@ -22,6 +22,22 @@ class FAQPage extends StatelessWidget {
     {
       'question': 'Kapan gejala dan risiko ASD dapat muncul?',
       'answer': 'Gejala-gejala ASD dapat dikenali pada tahun kedua kehidupan, yaitu sekitar 12-24 bulan.',
+    },
+    {
+      'question': 'Bagaimana cara mengenali risiko ASD dengan menggunakan Tiny Detector?',
+      'answer': 'Silahkan Anda membuat penilaian baru melalui fitur \'Tes Penilaian\'. Setelah Anda mengisi profil balita yang ingin dinilai, Anda perlu menjawab sebanyak 20 pertanyaan dengan jawaban \'Ya\' atau \'Tidak\'. Setelah selesai, Anda akan mendapatkan hasilnya.',
+    },
+    {
+      'question': 'Apa yang harus dilakukan jika hasil menunjukkan "Indikasi Ringan"?',
+      'answer': 'jika anak lebih muda dari 24 bulan, lakukan skrining lagi setelah ulang tahun kedua. Tidak ada tindakan lanjutan yang diperlukan, kecuali balita mengindikasikan risiko ASD, (Robins, 2018).',
+    },
+    {
+      'question': 'Apa yang harus dilakukan jika hasil menunjukkan "Indikasi Sedang"?',
+      'answer': 'lakukan Follow-up (M-CHAT-R/F tahap kedua) untuk mendapat informasi tambahan tentang respons berisiko.\n\nSkrining positif jika skor M-CHAT-R/F 2 atau lebih. Tindakan yang diperlukan: adalah rujuk anak untuk evaluasi diagnostik dan evaluasi eligibilitas untuk intervensi awal.\n\nSkrining negatif jika skor M-CHATR/F 0-1. Tidak ada tindakan lanjutan yang diperlukan, kecuali surveilans untuk mengindikasikan risiko ASD. Anak harus diskrining ulang saat datang kembali, (Robins, 2018).',
+    },
+    {
+      'question': 'Apa yang harus dilakukan jika hasil menunjukkan "Indikasi Tinggi"?',
+      'answer': 'Follow-up dapat tidak dilakukan dan pasien dirujuk segera untuk evaluasi diagnostik dan evaluasi eligibilitas untuk intervensi awal, (Robins, 2018).',
     },
   ];
 
