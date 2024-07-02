@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_tiny_detector/dashboard_page.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'main_page.dart';
 import 'footer.dart';
@@ -30,13 +31,16 @@ class _LoginPageState extends State<LoginPage> {
     String password = passwordController.text;
 
     try {
-      String token = await ApiService.attemptLogIn(email, password);
-      await storeToken(token);  
+      Map<String, dynamic> loginResponse = await ApiService.attemptLogIn(email, password);
+      String token = loginResponse['token'];
+      String role = loginResponse['role'];
+      await storeToken(token);    
 
-      final userId = JwtDecoder.decode(token)['userId'];
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      final userId = decodedToken['userId'];
     
       if (userId == null) {
-        throw Exception('User ID is missing in the token');
+        throw Exception('User ID or role is missing in the token');
       }
 
       if (isTokenExpired(token)) {
@@ -44,12 +48,23 @@ class _LoginPageState extends State<LoginPage> {
           const SnackBar(content: Text('Token is expired. Please log in again.')),
         );
       } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MainPage(userId: JwtDecoder.decode(token)['userId']),
-          ),
-        );
+        if (role == 'User') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainPage(userId: userId),
+            ),
+          );
+        } else if (role == 'Admin') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DashboardPage(assessorId: userId),
+            ),
+          );
+        } else {
+          throw Exception('Unknown role');
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
