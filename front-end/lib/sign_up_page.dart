@@ -10,6 +10,7 @@ class SignUpPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final ValueNotifier<bool> _obscureText = ValueNotifier<bool>(true);
+  final String role = "User";
 
   Future<void> signUp(BuildContext context) async {
     String name = nameController.text;
@@ -32,7 +33,7 @@ class SignUpPage extends StatelessWidget {
         return;
       }
 
-      Map<String, dynamic> response = await ApiService.attemptSignUp(name, age, profession, email, password);
+      Map<String, dynamic> response = await ApiService.attemptSignUp(name, age, profession, email, password, role);
       print(response);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Daftar pengguna berhasil: ${response['assessor_name']}')),
