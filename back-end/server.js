@@ -19,18 +19,9 @@ const pool = new Pool({
   port: 5432,
 });
 
-function generateToken(userId) {
-  const payload = { userId };
-  const secret = 'your-secret-key'; // Replace with your secret key
-  const options = { expiresIn: '1h' }; // Token expires in 1 hour
-
-  const token = jwt.sign(payload, secret, options);
-  return token;
+function generateToken(userId, role) {
+  return jwt.sign({ userId, role }, 'your_jwt_secret', { expiresIn: '1h' });
 }
-
-// Example usage
-const userId = 1; // Replace with actual user ID
-const token = generateToken(userId);
 
 // Endpoint to get assessor profile
 app.post("/users", async (req, res) => {
@@ -160,8 +151,10 @@ app.post("/login", async (req, res) => {
     )
     if (assessor.rows.length > 0) {
       const userId = assessor.rows[0].assessor_id;
-      const token = generateToken(userId);
-      res.status(200).json({ token });
+      const role = assessor.rows[0].role;
+      const token = generateToken(userId, role);
+
+      res.status(200).json({ token, role });
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -173,10 +166,10 @@ app.post("/login", async (req, res) => {
 
 app.post("/signup", async (req, res) => {
   try{
-    const { assessor_name, assessor_age, assessor_profession, assessor_email, assessor_password } = req.body;
+    const { assessor_name, assessor_age, assessor_profession, assessor_email, assessor_password, role } = req.body;
     const newAsessor = await pool.query(
-      'INSERT INTO assessor (assessor_name, assessor_age, assessor_profession, assessor_email, assessor_password) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [assessor_name, assessor_age, assessor_profession, assessor_email, assessor_password]
+      'INSERT INTO assessor (assessor_name, assessor_age, assessor_profession, assessor_email, assessor_password, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [assessor_name, assessor_age, assessor_profession, assessor_email, assessor_password, role]
     );
     res.status(201).json(newAsessor.rows[0]);
   } catch (error) {
