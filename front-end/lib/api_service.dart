@@ -171,7 +171,7 @@ class ApiService {
     }
   }
 
-  static Future<String> attemptLogIn(String email, String password) async {
+  static Future<Map<String, dynamic>> attemptLogIn(String email, String password) async {
     final response = await http.post(Uri.parse('$baseUrl/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -183,20 +183,23 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      String token = jsonDecode(response.body)['token'];
-      await storage.write(key: 'email', value: email);
-      await storage.write(key: 'jwt_token', value: token);
-      return token;
-    } else {
-      throw Exception('Failed to login');
-    }
+    Map<String, dynamic> responseBody = jsonDecode(response.body);
+    String token = responseBody['token'];
+    String role = responseBody['role'];
+    await storage.write(key: 'email', value: email);
+    await storage.write(key: 'jwt_token', value: token);
+    await storage.write(key: 'role', value: role); // Save the role
+    return {'token': token, 'role': role};
+  } else {
+    throw Exception('Failed to login');
+  }
   }
 
   static Future<String?> getToken() async {
     return await storage.read(key: 'jwt_token');
   }
 
-  static Future<Map<String, dynamic>> attemptSignUp(String name, int age, String profession, String email, String password) async {
+  static Future<Map<String, dynamic>> attemptSignUp(String name, int age, String profession, String email, String password, String role) async {
     final response = await http.post(Uri.parse('$baseUrl/signup'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -207,6 +210,7 @@ class ApiService {
         'assessor_profession': profession,
         'assessor_email': email,
         'assessor_password': password,
+        'role': role,
       }),
     );
 
@@ -214,6 +218,34 @@ class ApiService {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to sign up');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchUnsubmittedAssessments(int assessorId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/unsubmitted'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'assessor_id': assessorId}),
+    );
+
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load unsubmitted assessments');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchSubmittedAssessments(int assessorId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/submitted'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'assessor_id': assessorId}),
+    );
+
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load submitted assessments');
     }
   }
 }
