@@ -221,31 +221,113 @@ class ApiService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchUnsubmittedAssessments(int assessorId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/unsubmitted'),
+  static Future<List<Map<String, dynamic>>> fetchUnsubmittedAssessments() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/incomplete'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'assessor_id': assessorId}),
     );
 
     if (response.statusCode == 200) {
       return List<Map<String, dynamic>>.from(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to load unsubmitted assessments');
+      throw Exception('Failed to load unsubmitted assessments: ${response.reasonPhrase}');
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchSubmittedAssessments(int assessorId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/submitted'),
+  static Future<List<Map<String, dynamic>>> fetchSubmittedAssessments() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/complete'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'assessor_id': assessorId}),
     );
 
     if (response.statusCode == 200) {
       return List<Map<String, dynamic>>.from(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to load submitted assessments');
+      throw Exception('Failed to load submitted assessments: ${response.reasonPhrase}');
+    }
+  }
+
+  static Future<int> fetchAssessmentCount() async {
+    final response = await http.get(Uri.parse('$baseUrl/totalAssessments'));
+
+    if (response.statusCode == 200) {
+      return int.parse(jsonDecode(response.body)['count']);
+    } else {
+      throw Exception('Failed to load assessment count');
+    }
+  }
+
+  static Future<int> fetchAsdCasesCount() async {
+    final response = await http.get(Uri.parse('$baseUrl/totalCases'));
+
+    if (response.statusCode == 200) {
+      return int.parse(jsonDecode(response.body)['count']);
+    } else {
+      throw Exception('Failed to load ASD cases count');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchUser() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/assessor'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load assessor: ${response.reasonPhrase}');
+    }
+  }
+
+  static Future<int> fetchAssessorCount() async {
+    final response = await http.get(Uri.parse('$baseUrl/totalAssessors'));
+
+    if (response.statusCode == 200) {
+      return int.parse(jsonDecode(response.body)['count']);
+    } else {
+      throw Exception('Failed to load ASD cases count');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchAdmin() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/admin'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load admin: ${response.reasonPhrase}');
+    }
+  }
+
+  static Future<int> fetchAdminCount() async {
+    final response = await http.get(Uri.parse('$baseUrl/totalAdmins'));
+
+    if (response.statusCode == 200) {
+      return int.parse(jsonDecode(response.body)['count']);
+    } else {
+      throw Exception('Failed to load total admin');
+    }
+  }
+
+  static Future<Map<String, dynamic>> fetchDeleteAdmin(int assessor_id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/deleteAdmin/$assessor_id'));
+    if (response.statusCode == 200) {
+      try {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        print('Fetched user assessment: $data');
+        return data;
+      } catch (e) {
+        print('Failed to decode JSON: $e');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to decode JSON');
+      }
+    } else {
+      print('Failed to delete an with status code: ${response.statusCode}');
+      throw Exception('Failed to delete an account');
     }
   }
 }
