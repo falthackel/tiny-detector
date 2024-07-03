@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'http://157.173.221.41:3000';
   static const storage = FlutterSecureStorage();
 
   static Future<Map<String, dynamic>> fetchAssessor(String email) async {
