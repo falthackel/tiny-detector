@@ -204,6 +204,26 @@ app.post("/submitted", async (req, res) => {
   }
 })
 
+app.get("/incomplete", async (req, res) => {
+  try {
+    const toddler = await pool.query('SELECT * FROM toddler WHERE result IS NULL ORDER BY updated_at DESC');
+    res.status(200).json(toddler.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+});
+
+app.get("/complete", async (req, res) => {
+  try {
+    const toddler = await pool.query('SELECT * FROM toddler WHERE result IS NOT NULL ORDER BY updated_at DESC');
+    res.status(200).json(toddler.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+});
+
 app.post('/form', async (req, res) => {
   try {
     const { toddler_name, toddler_domicile, toddler_gender, toddler_age, assessor_id } = req.body;
@@ -269,6 +289,26 @@ app.post('/submit', async (req, res) => {
   }
 })
 
+app.get("/assessor", async (req, res) => {
+  try {
+    const assessor = await pool.query('SELECT * FROM assessor WHERE role = \'User\' ORDER BY assessor_id DESC');
+    res.status(200).json(assessor.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+});
+
+app.get("/admin", async (req, res) => {
+  try {
+    const assessor = await pool.query('SELECT * FROM assessor WHERE role = \'Admin\' ORDER BY assessor_id DESC');
+    res.status(200).json(assessor.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+});
+
 app.get('/toddler/:toddler_id', async (req, res) => {
   try {
     const { toddler_id } = req.params;
@@ -284,6 +324,64 @@ app.get('/toddler/:toddler_id', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching users' });
   }
 })
+
+app.get("/totalAssessments", async (req, res) => {
+  try {
+    const count = await pool.query('SELECT COUNT(*) FROM toddler');
+    res.status(200).json({ count: count.rows[0].count });
+  } catch (error) {
+    console.error('Error fetching assessment count:', error);
+    res.status(500).json({ error: 'An error occurred while fetching assessment count' });
+  }
+});
+
+app.get("/totalCases", async (req, res) => {
+  try {
+    const count = await pool.query('SELECT COUNT(*) FROM toddler WHERE result = 2 OR result = 3');
+    res.status(200).json({ count: count.rows[0].count });
+  } catch (error) {
+    console.error('Error fetching ASD cases count:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ASD cases count' });
+  }
+});
+
+app.get("/totalAssessors", async (req, res) => {
+  try {
+    const count = await pool.query('SELECT COUNT(*) FROM assessor WHERE role = \'User\'');
+    res.status(200).json({ count: count.rows[0].count });
+  } catch (error) {
+    console.error('Error fetching ASD cases count:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ASD cases count' });
+  }
+});
+
+app.get("/totalAdmins", async (req, res) => {
+  try {
+    const count = await pool.query('SELECT COUNT(*) FROM assessor WHERE role = \'Admin\'');
+    res.status(200).json({ count: count.rows[0].count });
+  } catch (error) {
+    console.error('Error fetching ASD cases count:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ASD cases count' });
+  }
+});
+
+// Endpoint to delete rows where assessor_id matches
+app.delete("/deleteAdmin/:assessor_id", async (req, res) => {
+  try {
+    const { assessor_id } = req.params;
+    const result = await pool.query('DELETE FROM assessor WHERE assessor_id = $1 RETURNING *', 
+      [assessor_id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+
+    res.status(200).json({ message: 'Admin deleted successfully', deletedAdmin: result.rows[0] });
+  } catch (error) {
+    console.error('Error deleting admin:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the admin' });
+  }
+});
 
 // Start the server
 app.listen(port, () => {
