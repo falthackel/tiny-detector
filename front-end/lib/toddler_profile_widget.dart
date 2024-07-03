@@ -29,7 +29,7 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
   }
 
   void _submitProfile() async {
-    if (_formKey.currentState!.validate() && selectedAge != -1) {
+    if ((_formKey.currentState?.validate() ?? false) && selectedAge != -1) {
       setState(() {
         isLoading = true; // Set loading state to true
       });
@@ -119,7 +119,7 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
                 controller: nameController,
                 decoration: const InputDecoration(labelText: 'Nama'),
                 validator: (value) {
-                  if (value!.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Nama tidak boleh kosong';
                   }
                   return null;
@@ -130,7 +130,7 @@ class _ToddlerProfileWidgetState extends State<ToddlerProfileWidget> {
                 controller: domicileController,
                 decoration: const InputDecoration(labelText: 'Domisili'),
                 validator: (value) {
-                  if (value!.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Domisili tidak boleh kosong';
                   }
                   return null;
