@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_tiny_detector/dashboard_page.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:logger/logger.dart';
 import 'main_page.dart';
 import 'footer.dart';
 import 'sign_up_page.dart';
@@ -29,26 +32,49 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> login() async {
     String email = emailController.text;
     String password = passwordController.text;
+    var logger = Logger();
 
     try {
       Map<String, dynamic> loginResponse = await ApiService.attemptLogIn(email, password);
+      log("login response");
+      logger.i("login response");
+      print("login response");
+      print(loginResponse);
+      logger.i(loginResponse);
       String token = loginResponse['token'];
       String role = loginResponse['role'];
       await storeToken(token);    
 
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      log("decode token");
+      logger.i("decode token");
+      print("decode token");
+      print(decodedToken);
+      logger.i(decodedToken);
       final userId = decodedToken['userId'];
     
       if (userId == null) {
+        print("Checkpoint 1");
+        log("Checkpoint 1");
+        logger.i("Checkpoint 1");
+        logger.d("Checkpoint 1");
         throw Exception('User ID or role is missing in the token');
       }
 
       if (isTokenExpired(token)) {
+        print("Checkpoint 2");
+        log("Checkpoint 2");
+        logger.i("Checkpoint 2");
+        logger.d("Checkpoint 2");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Token is expired. Please log in again.')),
         );
       } else {
         if (role == 'User') {
+          print("Checkpoint 3");
+          log("Checkpoint 3");
+          logger.i("Checkpoint 3");
+          logger.d("Checkpoint 3");
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -56,6 +82,10 @@ class _LoginPageState extends State<LoginPage> {
             ),
           );
         } else if (role == 'Admin') {
+          print("Checkpoint 4");
+          log("Checkpoint 4");
+          logger.i("Checkpoint 4");
+          logger.d("Checkpoint 4");
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
