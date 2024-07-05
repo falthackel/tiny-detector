@@ -57,7 +57,11 @@ class _LoginPageState extends State<LoginPage> {
 
       String token = loginResponse['token'];
       String role = loginResponse['role'];
-      await storeToken(token);
+      try {
+        await storeToken(token);
+      } catch (e) {
+        throw Exception('Failed to store token AAAAA');
+      }
 
       // if (token == null) {
       //   throw Exception('Token is null');
@@ -119,7 +123,9 @@ class _LoginPageState extends State<LoginPage> {
           throw Exception('Unknown role');
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed: $e $loginResponse')),
       );

@@ -175,47 +175,56 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> attemptLogIn(String email, String password) async {
-    logger.i('Attempting login with email: $email');
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'assessor_email': email,
-          'assessor_password': password,
-        }),
-      );
+
+    return http.post(
+      Uri.parse('$baseUrl/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'assessor_email': email,
+        'assessor_password': password,
+      }),
+    ).then((response) async {
 
       if (response.statusCode == 200) {
-        logger.i('Login successful. Response: ${response.body}');
         Map<String, dynamic> responseBody = jsonDecode(response.body);
 
-        if (responseBody['token'] == null) {
-          logger.e('Token is null');
-          throw Exception('Token is null');
+        try {
+          if (responseBody['token'] == null) {
+            print('Token is null');
+            throw Exception('Token is null');
+          }
+        } catch (e) {
+          throw Exception("token in responseBody unaccessible");
         }
-
-        if (responseBody['role'] == null) {
-          logger.e('Role is null');
-          throw Exception('Role is null');
+        
+        try {
+          if (responseBody['role'] == null) {
+            print('Role is null');
+            throw Exception('Role is null');
+          }
+        } catch (e) {
+          throw Exception("role in responseBody unaccessible");
         }
 
         String token = responseBody['token'];
         String role = responseBody['role'];
-        await storage.write(key: 'email', value: email);
-        await storage.write(key: 'jwt_token', value: token);
-        await storage.write(key: 'role', value: role); // Save the role
+        try {await storage.write(key: 'email', value: email);}
+        catch (e, stackTrace) {print("a" + '$e'); print("a $stackTrace"); throw Exception("a");}
+        try {await storage.write(key: 'jwt_token', value: token);}
+        catch (e, stackTrace) {print("b" + '$e'); print("b $stackTrace"); Exception("b");}
+        try {await storage.write(key: 'role', value: role);} // Save the role
+        catch (e, stackTrace) {print("c" + '$e'); print("c +$stackTrace"); throw Exception("c");}
         return {'token': token, 'role': role};
       } else {
-        logger.e('Failed to login with status code: ${response.statusCode}');
+        print('Failed to login with status code: ${response.statusCode}');
         throw Exception('Failed to login with status code: ${response.statusCode}');
       }
-    } catch (e) {
-      logger.e('Failed to login: $e');
+    }).catchError((e) {
+      print('Failed to login: $e');
       throw Exception('Failed to login: $e');
-    }
+    });
   }
 
   static Future<String?> getToken() async {

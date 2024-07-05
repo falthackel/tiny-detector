@@ -1,4 +1,6 @@
 require('dotenv').config();
+const fs = require('fs');
+const https = require('https');
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
@@ -7,6 +9,13 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 3000;
+
+
+// SSL/TLS certificates
+const privateKey = fs.readFileSync(process.env.SSL_KEY_PATH, 'utf8');
+const certificate = fs.readFileSync(process.env.SSL_CERT_PATH, 'utf8');
+const ca = fs.readFileSync('/path/to/your/ca_bundle.crt', 'utf8');
+
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
@@ -19,6 +28,12 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
+
+const credentials = {
+  key: privateKey,
+  cert: certificate,
+  ca: ca
+};
 
 function generateToken(userId, role) {
   return jwt.sign({ userId, role }, process.env.JWT_SECRET, { expiresIn: '1h' });
