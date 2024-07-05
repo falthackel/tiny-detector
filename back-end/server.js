@@ -14,7 +14,7 @@ const port = 3000;
 // SSL/TLS certificates
 const privateKey = fs.readFileSync(process.env.SSL_KEY_PATH, 'utf8');
 const certificate = fs.readFileSync(process.env.SSL_CERT_PATH, 'utf8');
-const ca = fs.readFileSync('/path/to/your/ca_bundle.crt', 'utf8');
+const ca = fs.readFileSync(process.env.SSL_CA_PATH, 'utf8');
 
 app.use(cors());
 app.use(express.json());
