@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
@@ -12,15 +13,15 @@ app.use(bodyParser.json());
 
 // PostgreSQL connection setup
 const pool = new Pool({
-  user: 'farrel',
-  host: '157.173.221.41',
-  database: 'balita',
-  password: '1q2w3e4r5t6y7u8i9o0p-[=]',
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
 function generateToken(userId, role) {
-  return jwt.sign({ userId, role }, 'your_jwt_secret', { expiresIn: '1h' });
+  return jwt.sign({ userId, role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 }
 
 // Endpoint to get assessor profile
