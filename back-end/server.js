@@ -12,10 +12,10 @@ app.use(bodyParser.json());
 
 // PostgreSQL connection setup
 const pool = new Pool({
-  user: 'saya',
-  host: 'localhost',
+  user: 'farrel',
+  host: '157.173.221.41',
   database: 'balita',
-  password: 'password',
+  password: '1q2w3e4r5t6y7u8i9o0p-[=]',
   port: 5432,
 });
 
@@ -385,5 +385,5 @@ app.delete("/deleteAdmin/:assessor_id", async (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at http://157.173.221.41:${port}`);
 });
