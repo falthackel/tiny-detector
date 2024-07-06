@@ -17,7 +17,7 @@ class FAQPage extends StatelessWidget {
     },
     {
       'question': 'Apa saja gejala-gejala ASD?',
-      'answer': 'Gejala ASD yang biasanya muncul adalah: \n(1) Keterlambatan perkembangan bahasa, sering kali disertai dengan kurangnya minat sosial atau interaksi sosial yang tidak biasa, pola permainan yang aneh, dan pola komunikasi yang tidak biasa, dan \n(2) perilaku aneh dan berulang serta tidak adanya permainan yang jelas.',
+      'answer': 'Gejala ASD yang biasanya muncul adalah: \n(1) Keterlambatan perkembangan bahasa, sering kali disertai dengan kurangnya minat sosial atau interaksi sosial yang tidak biasa, pola permainan yang aneh, dan pola komunikasi yang tidak biasa, dan \n(2) Perilaku aneh dan berulang serta tidak adanya permainan yang jelas.',
     },
     {
       'question': 'Kapan gejala dan risiko ASD dapat muncul?',
@@ -29,11 +29,11 @@ class FAQPage extends StatelessWidget {
     },
     {
       'question': 'Apa yang harus dilakukan jika hasil menunjukkan "Indikasi Ringan"?',
-      'answer': 'jika anak lebih muda dari 24 bulan, lakukan skrining lagi setelah ulang tahun kedua. Tidak ada tindakan lanjutan yang diperlukan, kecuali balita mengindikasikan risiko ASD, (Robins, 2018).',
+      'answer': 'Jika anak lebih muda dari 24 bulan, lakukan skrining lagi setelah ulang tahun kedua. Tidak ada tindakan lanjutan yang diperlukan, kecuali balita mengindikasikan risiko ASD, (Robins, 2018).',
     },
     {
       'question': 'Apa yang harus dilakukan jika hasil menunjukkan "Indikasi Sedang"?',
-      'answer': 'lakukan Follow-up (M-CHAT-R/F tahap kedua) untuk mendapat informasi tambahan tentang respons berisiko.\n\nSkrining positif jika skor M-CHAT-R/F 2 atau lebih. Tindakan yang diperlukan: adalah rujuk anak untuk evaluasi diagnostik dan evaluasi eligibilitas untuk intervensi awal.\n\nSkrining negatif jika skor M-CHATR/F 0-1. Tidak ada tindakan lanjutan yang diperlukan, kecuali surveilans untuk mengindikasikan risiko ASD. Anak harus diskrining ulang saat datang kembali, (Robins, 2018).',
+      'answer': 'Lakukan Follow-up (M-CHAT-R/F tahap kedua) untuk mendapat informasi tambahan tentang respons berisiko.\n\nSkrining positif jika skor M-CHAT-R/F 2 atau lebih. Tindakan yang diperlukan: adalah rujuk anak untuk evaluasi diagnostik dan evaluasi eligibilitas untuk intervensi awal.\n\nSkrining negatif jika skor M-CHATR/F 0-1. Tidak ada tindakan lanjutan yang diperlukan, kecuali surveilans untuk mengindikasikan risiko ASD. Anak harus diskrining ulang saat datang kembali, (Robins, 2018).',
     },
     {
       'question': 'Apa yang harus dilakukan jika hasil menunjukkan "Indikasi Tinggi"?',
