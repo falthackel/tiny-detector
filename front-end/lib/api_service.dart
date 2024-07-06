@@ -5,13 +5,15 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://157.173.221.41:3000';
+  static const String baseUrl = 'tinydetector.com';
   static const storage = FlutterSecureStorage();
   static final Logger logger = Logger();
 
   static Future<Map<String, dynamic>> fetchAssessor(String email) async {
+    Uri uri = Uri.https(baseUrl, '/api/users');
     final response = await http.post(
-      Uri.parse('$baseUrl/users'),
+      // Uri.parse('$baseUrl/users'),
+      uri,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         // 'assessor_name': name,
@@ -31,8 +33,10 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> createUser(Map<String, dynamic> userData) async {
+    Uri uri = Uri.https(baseUrl, '/api/form');
     final response = await http.post(
-      Uri.parse('$baseUrl/form'),
+      // Uri.parse('$baseUrl/form'),
+      uri,
       body: jsonEncode(userData),
       headers: {'Content-Type': 'application/json'},
     );
@@ -47,8 +51,10 @@ class ApiService {
   }
 
   static Future<bool> checkToddlerExists(Map<String, dynamic> userData) async {
+    Uri uri = Uri.https(baseUrl, '/api/check/toddler');
     final response = await http.post(
-      Uri.parse('$baseUrl/check/toddler'),
+      // Uri.parse('$baseUrl/check/toddler'),
+      uri,
       body: jsonEncode(userData),
       headers: {'Content-Type': 'application/json'},
     );
@@ -61,8 +67,10 @@ class ApiService {
   }
 
   static Future<bool> checkAssessorExists(Map<String, dynamic> userData) async {
+    Uri uri = Uri.https(baseUrl, '/api/check/assessor');
     final response = await http.post(
-      Uri.parse('$baseUrl/check/assessor'),
+      // Uri.parse('$baseUrl/check/assessor'),
+      uri,
       body: jsonEncode(userData),
       headers: {'Content-Type': 'application/json'},
     );
@@ -75,7 +83,11 @@ class ApiService {
   }
 
   static Future<List<Map<String, dynamic>>> fetchQuestions() async {
-    final response = await http.get(Uri.parse('$baseUrl/questions'));
+    Uri uri = Uri.https(baseUrl, '/api/questions');
+    final response = await http.get(
+      // Uri.parse('$baseUrl/questions'),
+      uri
+      );
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return List<Map<String, dynamic>>.from(data);
@@ -85,8 +97,10 @@ class ApiService {
   }
 
   static Future<void> saveQuestionAnswer(int userId, int responseId, int questionNumber, int answer) async {
+    Uri uri = Uri.https(baseUrl, '/api/form');
     final response = await http.put(
-      Uri.parse('$baseUrl/form'),
+      // Uri.parse('$baseUrl/form'),
+      uri,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'toddler_id': responseId,
@@ -100,8 +114,10 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> submitAnswers(int responseId) async {
+    Uri uri = Uri.https(baseUrl, '/api/submit');
     final response = await http.post(
-      Uri.parse('$baseUrl/submit'),
+      // Uri.parse('$baseUrl/submit'),
+      uri,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'toddler_id': responseId,
@@ -125,8 +141,10 @@ class ApiService {
   }
 
   static Future<List<Map<String, dynamic>>> fetchUserAssessments(int responseId) async {
+    Uri uri = Uri.https(baseUrl, '/api/unsubmitted');
     final response = await http.post(
-      Uri.parse('$baseUrl/unsubmitted'),
+      // Uri.parse('$baseUrl/unsubmitted'),
+      uri,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'assessor_id': responseId,
@@ -141,8 +159,10 @@ class ApiService {
   }
 
   static Future<List<Map<String, dynamic>>> fetchHistoryAssessments(int responseId) async {
+    Uri uri = Uri.https(baseUrl, '/api/submitted');
     final response = await http.post(
-      Uri.parse('$baseUrl/submitted'),
+      // Uri.parse('$baseUrl/submitted'),
+      uri,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'assessor_id': responseId,
@@ -157,7 +177,11 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> fetchUserAssessment(int toddler_id) async {
-    final response = await http.get(Uri.parse('$baseUrl/toddler/$toddler_id'));
+    Uri uri = Uri.https(baseUrl, '/api/toddler/$toddler_id');
+    final response = await http.get(
+      // Uri.parse('$baseUrl/toddler/$toddler_id'),
+      uri
+      );
     if (response.statusCode == 200) {
       try {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -175,9 +199,12 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> attemptLogIn(String email, String password) async {
+    Uri uri = Uri.https(baseUrl, '/api/login');
+    // print('Constructed URI: $uri'); // Print the URI
 
     return http.post(
-      Uri.parse('$baseUrl/login'),
+      uri,
+      // Uri.parse('$baseUrl/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -232,7 +259,10 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> attemptSignUp(String name, int age, String profession, String email, String password, String role) async {
-    final response = await http.post(Uri.parse('$baseUrl/signup'),
+    Uri uri = Uri.https(baseUrl, '/api/signup');
+    final response = await http.post(
+      // Uri.parse('$baseUrl/signup'),
+      uri,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -254,8 +284,10 @@ class ApiService {
   }
 
   static Future<List<Map<String, dynamic>>> fetchUnsubmittedAssessments() async {
+    Uri uri = Uri.https(baseUrl, '/api/incomplete');
     final response = await http.get(
-      Uri.parse('$baseUrl/incomplete'),
+      // Uri.parse('$baseUrl/incomplete'),
+      uri,
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -267,8 +299,10 @@ class ApiService {
   }
 
   static Future<List<Map<String, dynamic>>> fetchSubmittedAssessments() async {
+    Uri uri = Uri.https(baseUrl, '/api/complete');
     final response = await http.get(
-      Uri.parse('$baseUrl/complete'),
+      // Uri.parse('$baseUrl/complete'),
+      uri,
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -280,7 +314,11 @@ class ApiService {
   }
 
   static Future<int> fetchAssessmentCount() async {
-    final response = await http.get(Uri.parse('$baseUrl/totalAssessments'));
+    Uri uri = Uri.https(baseUrl, '/api/totalAssessments');
+    final response = await http.get(
+      // Uri.parse('$baseUrl/totalAssessments')
+      uri
+      );
 
     if (response.statusCode == 200) {
       return int.parse(jsonDecode(response.body)['count']);
@@ -290,7 +328,11 @@ class ApiService {
   }
 
   static Future<int> fetchAsdCasesCount() async {
-    final response = await http.get(Uri.parse('$baseUrl/totalCases'));
+    Uri uri = Uri.https(baseUrl, '/api/totalCases');
+    final response = await http.get(
+      // Uri.parse('$baseUrl/totalCases')
+      uri
+      );
 
     if (response.statusCode == 200) {
       return int.parse(jsonDecode(response.body)['count']);
@@ -300,8 +342,10 @@ class ApiService {
   }
 
   static Future<List<Map<String, dynamic>>> fetchUser() async {
+    Uri uri = Uri.https(baseUrl, '/api/assessor');
     final response = await http.get(
-      Uri.parse('$baseUrl/assessor'),
+      // Uri.parse('$baseUrl/assessor'),
+      uri,
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -313,7 +357,11 @@ class ApiService {
   }
 
   static Future<int> fetchAssessorCount() async {
-    final response = await http.get(Uri.parse('$baseUrl/totalAssessors'));
+    Uri uri = Uri.https(baseUrl, '/api/totalAssessors');
+    final response = await http.get(
+      // Uri.parse('$baseUrl/totalAssessors')
+      uri
+      );
 
     if (response.statusCode == 200) {
       return int.parse(jsonDecode(response.body)['count']);
@@ -323,8 +371,10 @@ class ApiService {
   }
 
   static Future<List<Map<String, dynamic>>> fetchAdmin() async {
+    Uri uri = Uri.https(baseUrl, '/api/admin');
     final response = await http.get(
-      Uri.parse('$baseUrl/admin'),
+      // Uri.parse('$baseUrl/admin'),
+      uri,
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -336,7 +386,11 @@ class ApiService {
   }
 
   static Future<int> fetchAdminCount() async {
-    final response = await http.get(Uri.parse('$baseUrl/totalAdmins'));
+    Uri uri = Uri.https(baseUrl, '/api/totalAdmins');
+    final response = await http.get(
+      // Uri.parse('$baseUrl/totalAdmins')
+      uri
+      );
 
     if (response.statusCode == 200) {
       return int.parse(jsonDecode(response.body)['count']);
@@ -346,7 +400,11 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> fetchDeleteAdmin(int assessor_id) async {
-    final response = await http.delete(Uri.parse('$baseUrl/deleteAdmin/$assessor_id'));
+    Uri uri = Uri.https(baseUrl, '/api/deleteAdmin/$assessor_id');
+    final response = await http.delete(
+      // Uri.parse('$baseUrl/deleteAdmin/$assessor_id')
+      uri
+      );
     if (response.statusCode == 200) {
       try {
         final Map<String, dynamic> data = jsonDecode(response.body);
