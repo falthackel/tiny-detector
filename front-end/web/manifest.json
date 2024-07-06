@@ -1,11 +1,11 @@
 {
-    "name": "flutter_tiny_detector",
-    "short_name": "flutter_tiny_detector",
+    "name": "Tiny Detector",
+    "short_name": "Tiny Detector",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Alat bantu screening ASD untuk balita.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
