@@ -12,12 +12,36 @@ class SignUpPage extends StatelessWidget {
   final ValueNotifier<bool> _obscureText = ValueNotifier<bool>(true);
   final String role = "User";
 
+  bool isValidEmail(String email) {
+    final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    return emailRegExp.hasMatch(email);
+  }
+
+  bool isValidPassword(String password) {
+    final passwordRegExp = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+    return passwordRegExp.hasMatch(password);
+  }
+
   Future<void> signUp(BuildContext context) async {
     String name = nameController.text;
     int age = int.tryParse(ageController.text) ?? 0;
     String profession = professionController.text;
     String email = emailController.text;
     String password = passwordController.text;
+
+    if (!isValidEmail(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Format email tidak valid')),
+      );
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kata sandi harus minimal 8 karakter dan mengandung huruf dan angka')),
+      );
+      return;
+    }
 
     final userData = {
       'assessor_name': name,
