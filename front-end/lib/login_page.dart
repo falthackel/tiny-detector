@@ -1,9 +1,7 @@
-// import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_tiny_detector/dashboard_page.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-// import 'package:logger/logger.dart';
 import 'main_page.dart';
 import 'footer.dart';
 import 'sign_up_page.dart';
@@ -31,25 +29,10 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> login() async {
     String email = emailController.text;
     String password = passwordController.text;
-    // var logger = Logger();
     Map<String, dynamic> loginResponse = {};
 
     try {
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('respon: $loginResponse, $email, $password')),
-      // );
-
       loginResponse = await ApiService.attemptLogIn(email, password);
-
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('new respon: $loginResponse, ${loginResponse['token']}, ${loginResponse['role']}')),
-      // );
-
-      // log("login response");
-      // logger.i("login response");
-      // print("login response");
-      // print(loginResponse);
-      // logger.i(loginResponse);
 
       if (loginResponse == {} || !loginResponse.containsKey('token') || !loginResponse.containsKey('role')) {
         throw Exception('Invalid login response');
@@ -63,16 +46,7 @@ class _LoginPageState extends State<LoginPage> {
         throw Exception('Failed to store token AAAAA');
       }
 
-      // if (token == null) {
-      //   throw Exception('Token is null');
-      // }    
-
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-      // log("decode token");
-      // logger.i("decode token");
-      // print("decode token");
-      // print(decodedToken);
-      // logger.i(decodedToken);
 
       if (!decodedToken.containsKey('userId')) {
         throw Exception('User ID is missing in the token');
@@ -81,27 +55,15 @@ class _LoginPageState extends State<LoginPage> {
       final userId = decodedToken['userId'];
     
       if (userId == null) {
-        // print("Checkpoint 1");
-        // log("Checkpoint 1");
-        // logger.i("Checkpoint 1");
-        // logger.d("Checkpoint 1");
         throw Exception('User ID or role is missing in the token');
       }
 
       if (isTokenExpired(token)) {
-        // print("Checkpoint 2");
-        // log("Checkpoint 2");
-        // logger.i("Checkpoint 2");
-        // logger.d("Checkpoint 2");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Token is expired. Please log in again.')),
         );
       } else {
         if (role == 'User') {
-          // print("Checkpoint 3");
-          // log("Checkpoint 3");
-          // logger.i("Checkpoint 3");
-          // logger.d("Checkpoint 3");
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -109,10 +71,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           );
         } else if (role == 'Admin') {
-          // print("Checkpoint 4");
-          // log("Checkpoint 4");
-          // logger.i("Checkpoint 4");
-          // logger.d("Checkpoint 4");
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
