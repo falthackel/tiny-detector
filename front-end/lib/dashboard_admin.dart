@@ -4,7 +4,6 @@ import 'package:flutter_tiny_detector/dashboard_drawer.dart';
 import 'package:flutter_tiny_detector/footer.dart';
 import 'package:flutter_tiny_detector/login_page.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-// import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'api_service.dart';
 
 class DashboardAdminPage extends StatefulWidget {
@@ -254,7 +253,6 @@ class _DashboardAdminPageState extends State<DashboardAdminPage> {
             TextField(
               controller: passwordController,
               decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
             ),
             const SizedBox(height: 8),
             ElevatedButton(
