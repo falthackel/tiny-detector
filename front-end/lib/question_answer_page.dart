@@ -166,7 +166,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                 child: Column(
                   children: [
                     Text(
-                      'Pertanyaan ${currentQuestionIndex+1}',
+                      'Pertanyaan ${currentQuestionIndex+1} dari 20',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
