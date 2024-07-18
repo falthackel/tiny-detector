@@ -159,88 +159,90 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
       ),
       body: questions.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : Container(
-              color: const Color.fromARGB(255, 255, 161, 50),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Pertanyaan ${currentQuestionIndex+1} dari 20',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 40,
-                      ),
-                    ),
-                    const SizedBox(height: 20.0),
-                    const Text(
-                      'Simak dan ikuti langkah demi langkah berdasarkan tayangan video di bawah ini.',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(questions[currentQuestionIndex]['imageUrl'] ?? ''),
-                          fit: BoxFit.contain,
+          : SingleChildScrollView(
+            child: Container(
+                color: const Color.fromARGB(255, 255, 161, 50),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Pertanyaan ${currentQuestionIndex+1} dari 20',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 40,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Text(
-                      questions[currentQuestionIndex]['text'] ?? 'No question text available',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
+                      const SizedBox(height: 20.0),
+                      const Text(
+                        'Simak dan ikuti langkah demi langkah berdasarkan tayangan video di bawah ini.',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: intAnswers['q${currentQuestionIndex+1}'] == 1 ? Colors.green : Colors.white,
+                      const SizedBox(height: 20.0),
+                      Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(questions[currentQuestionIndex]['imageUrl'] ?? ''),
+                            fit: BoxFit.contain,
                           ),
-                          onPressed: () {
-                            handleAnswer(true);
-                          },
-                          child: const Text('Ya'),
                         ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: intAnswers['q${currentQuestionIndex+1}'] == 0 ? Colors.red : Colors.white,
+                      ),
+                      const SizedBox(height: 20.0),
+                      Text(
+                        questions[currentQuestionIndex]['text'] ?? 'No question text available',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 20.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: intAnswers['q${currentQuestionIndex+1}'] == 1 ? Colors.green : Colors.white,
+                            ),
+                            onPressed: () {
+                              handleAnswer(true);
+                            },
+                            child: const Text('Ya'),
                           ),
-                          onPressed: () {
-                            handleAnswer(false);
-                          },
-                          child: const Text('Tidak'),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        ElevatedButton(
-                          onPressed: _navigateToPreviousQuestion,
-                          child: const Text('Previous'),
-                        ),
-                        ElevatedButton(
-                          onPressed: _navigateToNextQuestion,
-                          child: const Text('Next'),
-                        ),
-                      ],
-                    ),
-                  ],
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: intAnswers['q${currentQuestionIndex+1}'] == 0 ? Colors.red : Colors.white,
+                            ),
+                            onPressed: () {
+                              handleAnswer(false);
+                            },
+                            child: const Text('Tidak'),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _navigateToPreviousQuestion,
+                            child: const Text('Previous'),
+                          ),
+                          ElevatedButton(
+                            onPressed: _navigateToNextQuestion,
+                            child: const Text('Next'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
+          ),
     );
   }
 }
